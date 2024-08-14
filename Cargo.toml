@@ -3,10 +3,18 @@ name = "asteroids-rust-test"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "game_library"
+path = "src/lib.rs"
+
+[[bin]]
+name = "game_binary"
+path = "src/main.rs"
+
 [dependencies]
 avian2d = "0.1"
 bevy = "0.14"
-bevy_asset_loader = "0.21"
+bevy_asset_loader = { version = "0.21", features = ["standard_dynamic_assets",] }
 leafwing-input-manager = "0.15"
 log = { version = "*", features = ["max_level_debug", "release_max_level_warn"] }
 
