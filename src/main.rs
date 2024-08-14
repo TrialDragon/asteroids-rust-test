@@ -15,6 +15,7 @@ fn main() {
                 "game.assets.ron",
             ),
         )
+        .add_plugins(player::plugin)
         .add_systems(Startup, setup_camera)
         .run();
 }
