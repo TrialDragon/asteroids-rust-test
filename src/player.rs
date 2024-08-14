@@ -27,6 +27,7 @@ struct Player;
 fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
     commands.spawn((
         Name::new("Player"),
+        StateScoped(GameState::Playing),
         Player,
         RigidBody::Kinematic,
         Collider::circle(1.),
