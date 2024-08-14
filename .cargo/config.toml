@@ -1,0 +1,4 @@
+# Borrowed from The Bevy Quick Start Guide.
+[target.x86_64-unknown-linux-gnu]
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=/usr/bin/mold"]
