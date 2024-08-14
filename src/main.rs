@@ -15,5 +15,12 @@ fn main() {
                 "game.assets.ron",
             ),
         )
+        .add_systems(Startup, setup_camera)
         .run();
+}
+
+// WARN: This should be removed later on;
+// it exists only for early testing reasons.
+fn setup_camera(mut commands: Commands) {
+    commands.spawn(Camera2dBundle::default());
 }
