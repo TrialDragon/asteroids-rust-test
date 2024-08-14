@@ -1,5 +1,5 @@
 ({
-    "player_sprite": File (
+    "image.player_sprite": File (
         path: "images/player.png",
     ),
 })
