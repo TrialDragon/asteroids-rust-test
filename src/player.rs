@@ -13,6 +13,11 @@ pub fn plugin(app: &mut App) {
     );
     app.add_systems(OnEnter(GameState::Playing), spawn_player);
     app.add_systems(FixedUpdate, move_player);
+    // This is in Update instead of FixedUpdate
+    // because transform interpolation won't allow
+    // the teleporting needed in FixedUpdate, only
+    // non-fixed-timestep schedules.
+    app.add_systems(Update, player_movement_wrapping);
 }
 
 #[derive(AssetCollection, Resource)]
@@ -93,5 +98,21 @@ fn move_player(
         // It appears negative rotates right and positive left
         // so this needs to be inverted to get correct rotations.
         angular_velocity.0 = angular_velocity.0.lerp(MAX_ANGULAR_SPEED * -rotation, angular_acceleration.0 * time.delta_seconds());
+    }
+}
+
+fn player_movement_wrapping(mut query: Query<&mut Transform, With<Player>>) {
+    for mut transform in &mut query {
+        if transform.translation.x >= 640. {
+            transform.translation.x = -639.;
+        } else if transform.translation.x <= -640. {
+            transform.translation.x = 639.;
+        }
+
+        if transform.translation.y >= 360. {
+            transform.translation.y = -359.;
+        } else if transform.translation.y <= -360. {
+            transform.translation.y = 359.;
+        }
     }
 }
