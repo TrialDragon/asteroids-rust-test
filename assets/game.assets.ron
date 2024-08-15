@@ -5,4 +5,7 @@
     "image.projectile_sprite": File (
         path: "images/projectile.png",
     ),
+    "image.basic_asteroid": File (
+        path: "images/basic_asteroid.png",
+    ),
 })
