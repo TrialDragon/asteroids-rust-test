@@ -25,7 +25,10 @@ struct AsteroidID(pub usize);
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-struct Asteroid(usize);
+struct Asteroid {
+    id: usize,
+    direction: Vec3,
+}
 
 #[derive(Debug)]
 enum AsteroidKind {
@@ -58,20 +61,19 @@ impl AsteroidKind {
 pub struct SpawnAsteroid {
     kind: AsteroidKind,
     position: Vec3,
-    // TODO: Use this for movement.
-    _direction: Vec3,
+    direction: Vec3,
 }
 
 impl SpawnAsteroid {
     fn new(
         kind: AsteroidKind,
         position: Vec3,
-        _direction: Vec3
+        direction: Vec3
     ) -> Self {
         Self {
             kind,
             position,
-            _direction
+            direction
         }
     }
 }
@@ -82,7 +84,10 @@ fn spawn_asteroid(trigger: Trigger<SpawnAsteroid>, mut commands: Commands, asset
     commands.spawn((
         Name::new("Basic Asteroid"),
         StateScoped(GameState::Playing),
-        Asteroid(asteroid_id.0),
+        Asteroid {
+            id: asteroid_id.0,
+            direction: event.direction,
+        },
         SpriteBundle {
             transform: Transform::from_translation(event.position),
             texture: event.kind.get_texture(assets),
