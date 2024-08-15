@@ -12,7 +12,6 @@ pub fn plugin(app: &mut App) {
     );
     app.add_systems(OnEnter(GameState::Playing), spawn_player);
     app.add_systems(FixedUpdate, move_player);
-    app.add_systems(Update, player_input);
 }
 
 #[derive(AssetCollection, Resource)]
@@ -48,7 +47,3 @@ fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
 }
 
 fn move_player() {}
-
-fn player_input() {}
-
-
