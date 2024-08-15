@@ -78,11 +78,11 @@ fn move_player(
 
     for (mut linear_velocity, mut angular_velocity, action_state, linear_acceleration, angular_acceleration, transform) in &mut query {
         let rotation = action_state.clamped_value(&Action::Rotate);
-        let direction = transform.rotation * Vec3::Y;
+        let direction = (transform.rotation * Vec3::Y).xy().normalize_or_zero();
 
         if action_state.pressed(&Action::Move) {
             // Accelerate linear velocity 
-            linear_velocity.0 = linear_velocity.0.move_towards(direction.xy() * MAX_LINEAR_SPEED, linear_acceleration.0 * time.delta_seconds());
+            linear_velocity.0 = linear_velocity.0.move_towards(direction * MAX_LINEAR_SPEED, linear_acceleration.0 * time.delta_seconds());
         } else {
             linear_velocity.0 = linear_velocity.0.move_towards(Vec2::ZERO, linear_acceleration.0 * time.delta_seconds());
         }
