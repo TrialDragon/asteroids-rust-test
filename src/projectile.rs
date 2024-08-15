@@ -44,6 +44,7 @@ fn spawn_projectile(trigger: Trigger<SpawnProjectile>, mut commands: Commands, a
     commands.spawn((
         Name::new("Projectile"),
         Projectile,
+        StateScoped(GameState::Playing),
         RigidBody::Kinematic,
         Collider::capsule(0.5, 3.),
         DebugRender::default(),
