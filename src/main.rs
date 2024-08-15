@@ -1,6 +1,7 @@
 use avian2d::prelude::*;
 use bevy::{prelude::*, render::camera::ScalingMode};
 use bevy_asset_loader::prelude::*;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_transform_interpolation::*;
 use leafwing_input_manager::prelude::*;
 
@@ -10,8 +11,6 @@ fn main() {
     let mut app = App::new();
     app.add_plugins(DefaultPlugins);
     app.add_plugins(PhysicsPlugins::default());
-    #[cfg(feature = "dev")]
-    app.add_plugins(PhysicsDebugPlugin::default());
     app.add_plugins(TransformInterpolationPlugin::default());
     app.add_plugins(InputManagerPlugin::<Action>::default());
     app.init_state::<GameState>();
@@ -24,6 +23,14 @@ fn main() {
     );
     app.add_plugins(player::plugin);
     app.add_systems(Startup, setup_camera);
+
+    // Development plugins, systems, et cetera.
+    #[cfg(feature = "dev")]
+    {
+        app.add_plugins(PhysicsDebugPlugin::default());
+        app.add_plugins(WorldInspectorPlugin::new());
+    }
+    
     app.run();
 }
 
