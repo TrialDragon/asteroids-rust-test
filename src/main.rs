@@ -1,5 +1,5 @@
 use avian2d::prelude::*;
-use bevy::prelude::*;
+use bevy::{prelude::*, render::camera::ScalingMode};
 use bevy_asset_loader::prelude::*;
 use bevy_transform_interpolation::*;
 use leafwing_input_manager::prelude::*;
@@ -25,8 +25,15 @@ fn main() {
         .run();
 }
 
-// WARN: This should be removed later on;
-// it exists only for early testing reasons.
 fn setup_camera(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    let mut camera_bundle = Camera2dBundle::default();
+    camera_bundle.projection.scaling_mode = ScalingMode::Fixed {
+        width: 1280.,
+        height: 720.,
+    };
+    commands.spawn((
+        Name::new("Camera"),
+        camera_bundle,
+        IsDefaultUiCamera,
+    ));
 }
