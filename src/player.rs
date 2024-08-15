@@ -1,8 +1,9 @@
 use bevy::prelude::*;
+use leafwing_input_manager::prelude::*;
 use bevy_asset_loader::prelude::*;
 use avian2d::prelude::*;
 
-use crate::GameState;
+use crate::{Action, GameState};
 
 pub fn plugin(app: &mut App) {
     app.configure_loading_state(
@@ -25,6 +26,13 @@ struct PlayerAssets {
 struct Player;
 
 fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
+    let input_map = InputMap::default()
+        .with_axis(Action::Move, KeyboardVirtualAxis::WS)
+        .with_axis(Action::Move, KeyboardVirtualAxis::VERTICAL_ARROW_KEYS)
+        .with_axis(Action::Rotate, KeyboardVirtualAxis::AD)
+        .with_axis(Action::Rotate, KeyboardVirtualAxis::HORIZONTAL_ARROW_KEYS)
+        .with(Action::Shoot,KeyCode::Space);
+
     commands.spawn((
         Name::new("Player"),
         StateScoped(GameState::Playing),
@@ -35,6 +43,7 @@ fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
             texture: assets.sprite.clone(),
             ..default()
         },
+        InputManagerBundle::with_map(input_map),
     ));
 }
 
