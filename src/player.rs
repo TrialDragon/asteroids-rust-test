@@ -27,11 +27,11 @@ struct Player;
 
 fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
     let input_map = InputMap::default()
-        .with_axis(Action::Move, KeyboardVirtualAxis::WS)
-        .with_axis(Action::Move, KeyboardVirtualAxis::VERTICAL_ARROW_KEYS)
         .with_axis(Action::Rotate, KeyboardVirtualAxis::AD)
         .with_axis(Action::Rotate, KeyboardVirtualAxis::HORIZONTAL_ARROW_KEYS)
-        .with(Action::Shoot,KeyCode::Space);
+        .with(Action::Shoot, KeyCode::Space)
+        .with(Action::Move, KeyCode::KeyW)
+        .with(Action::Move, KeyCode::ArrowUp);
 
     commands.spawn((
         Name::new("Player"),
@@ -71,21 +71,24 @@ fn move_player(
     const MAX_ANGULAR_SPEED: f32 = 3.;
 
     for (mut linear_velocity, mut angular_velocity, action_state, linear_acceleration, angular_acceleration, transform) in &mut query {
-        let throttle = action_state.clamped_value(&Action::Move);
         let rotation = action_state.clamped_value(&Action::Rotate);
         let direction = transform.rotation * Vec3::Y;
 
-        if throttle == 0.0 {
+        if action_state.pressed(&Action::Move) {
+            // Accelerate linear velocity 
+            linear_velocity.0 = linear_velocity.0.move_towards(direction.xy() * MAX_LINEAR_SPEED, linear_acceleration.0 * time.delta_seconds());
+        } else {
             linear_velocity.0 = linear_velocity.0.move_towards(Vec2::ZERO, linear_acceleration.0 * time.delta_seconds());
         }
 
+        // The reason the opposite acceleration code
+        // doesn't need to be in an if block
+        // is because if rotation is 0 then it won't
+        // accelerate, but it also won't decelerate
+        // which is the purpose of this block.
         if rotation == 0.0 {
             angular_velocity.0 = angular_velocity.0.lerp(0.0, angular_acceleration.0 * time.delta_seconds());
         }
-
-        // Accelerate linear velocity 
-        linear_velocity.0 = linear_velocity.0.move_towards(direction.xy() * MAX_LINEAR_SPEED, linear_acceleration.0 * throttle * time.delta_seconds());
-
 
         // It appears negative rotates right and positive left
         // so this needs to be inverted to get correct rotations.

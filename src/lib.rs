@@ -14,9 +14,8 @@ pub enum Action {
 impl Actionlike for Action {
     fn input_control_kind(&self) -> InputControlKind {
         match self {
-            Action::Move => InputControlKind::Axis,
             Action::Rotate => InputControlKind::Axis,
-            Action::Shoot => InputControlKind::Button,
+            Action::Move | Action::Shoot => InputControlKind::Button,
         }
     }
 }
