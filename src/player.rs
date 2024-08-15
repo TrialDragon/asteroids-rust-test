@@ -121,8 +121,13 @@ fn player_movement_wrapping(mut query: Query<&mut Transform, With<Player>>) {
 fn player_shoot(query: Query<(&ActionState<Action>, &Transform), With<Player>>, mut commands: Commands) {
     for (action_state, transform) in &query {
         if action_state.just_pressed(&Action::Shoot) {
+            const PROJECTILE_SPAWN_OFFSET: f32 = 30.;
+
+            let direction = (transform.rotation * Vec3::Y) .normalize_or_zero();
+            let offset = (direction.xy() * PROJECTILE_SPAWN_OFFSET).extend(0.0);
+
             commands.trigger(SpawnProjectile::new(
-                transform.translation,
+                transform.translation + offset,
                 transform.rotation,
             ))
         }
