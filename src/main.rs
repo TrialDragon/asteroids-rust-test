@@ -5,7 +5,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_transform_interpolation::*;
 use leafwing_input_manager::prelude::*;
 
-use game_library::{player, GameState, Action};
+use game_library::{player, projectile, GameState, Action};
 
 fn main() {
     let mut app = App::new();
@@ -22,6 +22,7 @@ fn main() {
         ),
     );
     app.add_plugins(player::plugin);
+    app.add_plugins(projectile::plugin);
     app.add_systems(Startup, setup_camera);
 
     // Development plugins, systems, et cetera.

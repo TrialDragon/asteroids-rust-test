@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 
 pub mod player;
+pub mod projectile;
 pub mod stats;
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Reflect)]

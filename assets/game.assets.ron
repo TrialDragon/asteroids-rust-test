@@ -2,4 +2,7 @@
     "image.player_sprite": File (
         path: "images/player.png",
     ),
+    "image.projectile_sprite": File (
+        path: "images/projectile.png",
+    ),
 })

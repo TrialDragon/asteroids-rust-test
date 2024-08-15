@@ -4,7 +4,7 @@ use bevy_asset_loader::prelude::*;
 use bevy_transform_interpolation::{RotationInterpolation, TranslationInterpolation};
 use leafwing_input_manager::prelude::*;
 
-use crate::{stats::{LinearAcceleration, AngularAcceleration}, Action, GameState};
+use crate::{projectile::SpawnProjectile, stats::{AngularAcceleration, LinearAcceleration}, Action, GameState};
 
 pub fn plugin(app: &mut App) {
     app.configure_loading_state(
@@ -18,6 +18,7 @@ pub fn plugin(app: &mut App) {
     // the teleporting needed in FixedUpdate, only
     // non-fixed-timestep schedules.
     app.add_systems(Update, player_movement_wrapping);
+    app.add_systems(Update, player_shoot);
 }
 
 #[derive(AssetCollection, Resource)]
@@ -113,6 +114,17 @@ fn player_movement_wrapping(mut query: Query<&mut Transform, With<Player>>) {
             transform.translation.y = -359.;
         } else if transform.translation.y <= -360. {
             transform.translation.y = 359.;
+        }
+    }
+}
+
+fn player_shoot(query: Query<(&ActionState<Action>, &Transform), With<Player>>, mut commands: Commands) {
+    for (action_state, transform) in &query {
+        if action_state.just_pressed(&Action::Shoot) {
+            commands.trigger(SpawnProjectile::new(
+                transform.translation,
+                transform.rotation,
+            ))
         }
     }
 }
