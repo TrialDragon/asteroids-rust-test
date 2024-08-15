@@ -19,6 +19,7 @@ bevy_asset_loader = { version = "0.21", features = ["standard_dynamic_assets",] 
 bevy_transform_interpolation = { git = "https://github.com/Jondolf/bevy_transform_interpolation", version = "0.1.0" }
 leafwing-input-manager = "0.15"
 log = { version = "*", features = ["max_level_debug", "release_max_level_warn"] }
+rand = "0.8.5"
 
 [features]
 default = [
