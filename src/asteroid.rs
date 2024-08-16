@@ -5,23 +5,28 @@ use bevy_transform_interpolation::*;
 use log::info;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
-use crate::{stats::{AngularAcceleration, LinearAcceleration}, GameState};
+use crate::{
+    stats::{AngularAcceleration, LinearAcceleration},
+    GameState,
+};
 
 pub fn plugin(app: &mut App) {
     app.configure_loading_state(
-        LoadingStateConfig::new(GameState::Loading)
-            .load_collection::<AsteroidAssets>(),
+        LoadingStateConfig::new(GameState::Loading).load_collection::<AsteroidAssets>(),
     );
     app.insert_resource(AsteroidID(0));
     app.observe(spawn_asteroid);
-    app.add_systems(OnEnter(GameState::Playing), (setup_asteroid_spawners, spawn_asteroids).chain());
+    app.add_systems(
+        OnEnter(GameState::Playing),
+        (setup_asteroid_spawners, spawn_asteroids).chain(),
+    );
     app.add_systems(FixedUpdate, move_asteroids);
 }
 
 #[derive(AssetCollection, Resource)]
 struct AsteroidAssets {
     #[asset(key = "image.basic_asteroid")]
-    basic_asteroid: Handle<Image>
+    basic_asteroid: Handle<Image>,
 }
 
 #[derive(Resource)]
@@ -51,7 +56,7 @@ impl AsteroidKind {
         }
     }
 
-    fn get_texture(&self,assets: Res<AsteroidAssets>) -> Handle<Image> {
+    fn get_texture(&self, assets: Res<AsteroidAssets>) -> Handle<Image> {
         match self {
             AsteroidKind::Basic => assets.basic_asteroid.clone(),
             AsteroidKind::Advanced => todo!(),
@@ -61,7 +66,7 @@ impl AsteroidKind {
     }
 }
 
-#[derive(Event,Debug)]
+#[derive(Event, Debug)]
 pub struct SpawnAsteroid {
     kind: AsteroidKind,
     position: Vec3,
@@ -69,24 +74,25 @@ pub struct SpawnAsteroid {
 }
 
 impl SpawnAsteroid {
-    fn new(
-        kind: AsteroidKind,
-        position: Vec3,
-        direction: Vec3
-    ) -> Self {
+    fn new(kind: AsteroidKind, position: Vec3, direction: Vec3) -> Self {
         Self {
             kind,
             position,
-            direction
+            direction,
         }
     }
 }
 
-fn spawn_asteroid(trigger: Trigger<SpawnAsteroid>, mut commands: Commands, assets: Res<AsteroidAssets>, mut asteroid_id: ResMut<AsteroidID>) {
+fn spawn_asteroid(
+    trigger: Trigger<SpawnAsteroid>,
+    mut commands: Commands,
+    assets: Res<AsteroidAssets>,
+    mut asteroid_id: ResMut<AsteroidID>,
+) {
     let event = trigger.event();
 
     commands.spawn((
-        // TODO: Add a `#get_name()` method to 
+        // TODO: Add a `#get_name()` method to
         // AsteroidKind.
         Name::new("Basic Asteroid"),
         StateScoped(GameState::Playing),
@@ -124,24 +130,38 @@ fn spawn_asteroid(trigger: Trigger<SpawnAsteroid>, mut commands: Commands, asset
     asteroid_id.0 = asteroid_id.0.wrapping_add(1);
 }
 
-fn move_asteroids(mut query: Query<(
-    &Asteroid,
-    &LinearAcceleration,
-    &AngularAcceleration,
-    &mut LinearVelocity,
-    &mut AngularVelocity,
-)>,
+fn move_asteroids(
+    mut query: Query<(
+        &Asteroid,
+        &LinearAcceleration,
+        &AngularAcceleration,
+        &mut LinearVelocity,
+        &mut AngularVelocity,
+    )>,
     time: Res<Time<Fixed>>,
 ) {
     const LINEAR_MAX_SPEED: f32 = 100.;
     const ANGULAR_MAX_SPEED: f32 = PI;
 
-    for (asteroid, linear_acceleration, angular_acceleration, mut linear_velocity, mut angular_velocity) in &mut query {
+    for (
+        asteroid,
+        linear_acceleration,
+        angular_acceleration,
+        mut linear_velocity,
+        mut angular_velocity,
+    ) in &mut query
+    {
         let target_velocity = (asteroid.direction * LINEAR_MAX_SPEED).xy();
 
-        linear_velocity.0 = linear_velocity.0.move_towards(target_velocity, linear_acceleration.0 * time.delta_seconds());
+        linear_velocity.0 = linear_velocity.0.move_towards(
+            target_velocity,
+            linear_acceleration.0 * time.delta_seconds(),
+        );
 
-        angular_velocity.0 = angular_velocity.0.lerp(ANGULAR_MAX_SPEED, angular_acceleration.0 * time.delta_seconds());
+        angular_velocity.0 = angular_velocity.0.lerp(
+            ANGULAR_MAX_SPEED,
+            angular_acceleration.0 * time.delta_seconds(),
+        );
     }
 }
 
@@ -182,7 +202,9 @@ impl AsteroidSpawnerBundle {
     pub fn new(position: Vec3, direction: Vec3) -> Self {
         Self {
             spawner: AsteroidSpawner::new(direction),
-            transform_bundle: TransformBundle::from_transform(Transform::from_translation(position)),
+            transform_bundle: TransformBundle::from_transform(Transform::from_translation(
+                position,
+            )),
             ..default()
         }
     }
@@ -211,17 +233,23 @@ fn setup_asteroid_spawners(mut commands: Commands) {
         // Bottom edge.
         Vec3::new(LEFT_VIEWPORT_EDGE / 2., BOTTOM_VIEWPORT_EDGE, 0.0),
         Vec3::new(RIGHT_VIEWPORT_EDGE / 2., BOTTOM_VIEWPORT_EDGE, 0.0),
-
     ];
 
     for spawner_point in spawner_points {
         let mut rng = thread_rng();
-        let target: Vec3 = Vec3::new(rng.gen_range(-320.0..=320.0), rng.gen_range(-130.0..=130.0), 0.0);
+        let target: Vec3 = Vec3::new(
+            rng.gen_range(-320.0..=320.0),
+            rng.gen_range(-130.0..=130.0),
+            0.0,
+        );
         let direction = Transform::from_translation((target - spawner_point).normalize_or_zero());
 
         // Direction from A to B is B - A;
         // we then normalize it to make it a unit vector.
-        commands.spawn(AsteroidSpawnerBundle::new(spawner_point, direction.translation));
+        commands.spawn(AsteroidSpawnerBundle::new(
+            spawner_point,
+            direction.translation,
+        ));
     }
 }
 

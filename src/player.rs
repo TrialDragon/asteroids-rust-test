@@ -4,12 +4,15 @@ use bevy_asset_loader::prelude::*;
 use bevy_transform_interpolation::{RotationInterpolation, TranslationInterpolation};
 use leafwing_input_manager::prelude::*;
 
-use crate::{projectile::SpawnProjectile, stats::{AngularAcceleration, LinearAcceleration}, Action, GameState};
+use crate::{
+    projectile::SpawnProjectile,
+    stats::{AngularAcceleration, LinearAcceleration},
+    Action, GameState,
+};
 
 pub fn plugin(app: &mut App) {
     app.configure_loading_state(
-        LoadingStateConfig::new(GameState::Loading)
-            .load_collection::<PlayerAssets>(),
+        LoadingStateConfig::new(GameState::Loading).load_collection::<PlayerAssets>(),
     );
     app.add_systems(OnEnter(GameState::Playing), spawn_player);
     app.add_systems(FixedUpdate, move_player);
@@ -24,7 +27,7 @@ pub fn plugin(app: &mut App) {
 #[derive(AssetCollection, Resource)]
 struct PlayerAssets {
     #[asset(key = "image.player_sprite")]
-    sprite: Handle<Image>
+    sprite: Handle<Image>,
 }
 
 #[derive(Component, Reflect)]
@@ -62,29 +65,44 @@ fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
 // breaks adding the system to the app.
 #[allow(clippy::type_complexity)]
 fn move_player(
-    mut query: Query<(
-        &mut LinearVelocity,
-        &mut AngularVelocity,
-        &ActionState<Action>,
-        &LinearAcceleration,
-        &AngularAcceleration,
-        &Transform,
-    ),
-        With<Player>>,
-    time: Res<Time<Fixed>>
+    mut query: Query<
+        (
+            &mut LinearVelocity,
+            &mut AngularVelocity,
+            &ActionState<Action>,
+            &LinearAcceleration,
+            &AngularAcceleration,
+            &Transform,
+        ),
+        With<Player>,
+    >,
+    time: Res<Time<Fixed>>,
 ) {
     const MAX_LINEAR_SPEED: f32 = 300.0;
     const MAX_ANGULAR_SPEED: f32 = 3.;
 
-    for (mut linear_velocity, mut angular_velocity, action_state, linear_acceleration, angular_acceleration, transform) in &mut query {
+    for (
+        mut linear_velocity,
+        mut angular_velocity,
+        action_state,
+        linear_acceleration,
+        angular_acceleration,
+        transform,
+    ) in &mut query
+    {
         let rotation = action_state.clamped_value(&Action::Rotate);
         let direction = (transform.rotation * Vec3::Y).xy().normalize_or_zero();
 
         if action_state.pressed(&Action::Move) {
-            // Accelerate linear velocity 
-            linear_velocity.0 = linear_velocity.0.move_towards(direction * MAX_LINEAR_SPEED, linear_acceleration.0 * time.delta_seconds());
+            // Accelerate linear velocity
+            linear_velocity.0 = linear_velocity.0.move_towards(
+                direction * MAX_LINEAR_SPEED,
+                linear_acceleration.0 * time.delta_seconds(),
+            );
         } else {
-            linear_velocity.0 = linear_velocity.0.move_towards(Vec2::ZERO, linear_acceleration.0 * time.delta_seconds());
+            linear_velocity.0 = linear_velocity
+                .0
+                .move_towards(Vec2::ZERO, linear_acceleration.0 * time.delta_seconds());
         }
 
         // The reason the opposite acceleration code
@@ -93,12 +111,17 @@ fn move_player(
         // accelerate, but it also won't decelerate
         // which is the purpose of this block.
         if rotation == 0.0 {
-            angular_velocity.0 = angular_velocity.0.lerp(0.0, angular_acceleration.0 * time.delta_seconds());
+            angular_velocity.0 = angular_velocity
+                .0
+                .lerp(0.0, angular_acceleration.0 * time.delta_seconds());
         }
 
         // It appears negative rotates right and positive left
         // so this needs to be inverted to get correct rotations.
-        angular_velocity.0 = angular_velocity.0.lerp(MAX_ANGULAR_SPEED * -rotation, angular_acceleration.0 * time.delta_seconds());
+        angular_velocity.0 = angular_velocity.0.lerp(
+            MAX_ANGULAR_SPEED * -rotation,
+            angular_acceleration.0 * time.delta_seconds(),
+        );
     }
 }
 
@@ -118,12 +141,15 @@ fn player_movement_wrapping(mut query: Query<&mut Transform, With<Player>>) {
     }
 }
 
-fn player_shoot(query: Query<(&ActionState<Action>, &Transform), With<Player>>, mut commands: Commands) {
+fn player_shoot(
+    query: Query<(&ActionState<Action>, &Transform), With<Player>>,
+    mut commands: Commands,
+) {
     for (action_state, transform) in &query {
         if action_state.just_pressed(&Action::Shoot) {
             const PROJECTILE_SPAWN_OFFSET: f32 = 30.;
 
-            let direction = (transform.rotation * Vec3::Y) .normalize_or_zero();
+            let direction = (transform.rotation * Vec3::Y).normalize_or_zero();
             let offset = (direction.xy() * PROJECTILE_SPAWN_OFFSET).extend(0.0);
 
             commands.trigger(SpawnProjectile::new(

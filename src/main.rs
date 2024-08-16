@@ -5,7 +5,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_transform_interpolation::*;
 use leafwing_input_manager::prelude::*;
 
-use game_library::{asteroid, player, projectile, GameState, Action};
+use game_library::{asteroid, player, projectile, Action, GameState};
 
 fn main() {
     let mut app = App::new();
@@ -16,10 +16,8 @@ fn main() {
     app.init_state::<GameState>();
     app.add_loading_state(
         LoadingState::new(GameState::Loading)
-        .continue_to_state(GameState::Playing)
-        .with_dynamic_assets_file::<StandardDynamicAssetCollection>(
-            "game.assets.ron",
-        ),
+            .continue_to_state(GameState::Playing)
+            .with_dynamic_assets_file::<StandardDynamicAssetCollection>("game.assets.ron"),
     );
     app.add_plugins(player::plugin);
     app.add_plugins(projectile::plugin);
@@ -32,7 +30,7 @@ fn main() {
         app.add_plugins(PhysicsDebugPlugin::default());
         app.add_plugins(WorldInspectorPlugin::new());
     }
-    
+
     app.run();
 }
 
@@ -42,9 +40,5 @@ fn setup_camera(mut commands: Commands) {
         width: 1280.,
         height: 720.,
     };
-    commands.spawn((
-        Name::new("Camera"),
-        camera_bundle,
-        IsDefaultUiCamera,
-    ));
+    commands.spawn((Name::new("Camera"), camera_bundle, IsDefaultUiCamera));
 }

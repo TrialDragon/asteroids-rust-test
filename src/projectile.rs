@@ -1,14 +1,13 @@
-use bevy::prelude::*;
-use bevy_transform_interpolation::*;
 use avian2d::prelude::*;
+use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+use bevy_transform_interpolation::*;
 
 use crate::{stats::LinearAcceleration, GameState};
 
 pub fn plugin(app: &mut App) {
     app.configure_loading_state(
-        LoadingStateConfig::new(GameState::Loading)
-            .load_collection::<ProjectileAssets>(),
+        LoadingStateConfig::new(GameState::Loading).load_collection::<ProjectileAssets>(),
     );
     app.observe(spawn_projectile);
     app.add_systems(FixedUpdate, move_projectile);
@@ -28,10 +27,7 @@ pub struct SpawnProjectile {
 
 impl SpawnProjectile {
     pub fn new(position: Vec3, rotation: Quat) -> Self {
-        Self {
-            position,
-            rotation,
-        }
+        Self { position, rotation }
     }
 }
 
@@ -39,7 +35,11 @@ impl SpawnProjectile {
 #[reflect(Component)]
 struct Projectile;
 
-fn spawn_projectile(trigger: Trigger<SpawnProjectile>, mut commands: Commands, assets: Res<ProjectileAssets>) {
+fn spawn_projectile(
+    trigger: Trigger<SpawnProjectile>,
+    mut commands: Commands,
+    assets: Res<ProjectileAssets>,
+) {
     let event = trigger.event();
     commands.spawn((
         Name::new("Projectile"),
@@ -62,18 +62,17 @@ fn spawn_projectile(trigger: Trigger<SpawnProjectile>, mut commands: Commands, a
     ));
 }
 
-fn move_projectile(mut query: Query<(
-    &mut LinearVelocity,
-    &Transform,
-    &LinearAcceleration
-),
-    With<Projectile>>,
+fn move_projectile(
+    mut query: Query<(&mut LinearVelocity, &Transform, &LinearAcceleration), With<Projectile>>,
     time: Res<Time<Fixed>>,
 ) {
     const MAX_PROJECTILE_SPEED: f32 = 1000.0;
 
     for (mut linear_velocity, transform, linear_acceleration) in &mut query {
         let direction = (transform.rotation * Vec3::Y).xy().normalize_or_zero();
-        linear_velocity.0 = linear_velocity.0.move_towards(direction * MAX_PROJECTILE_SPEED, linear_acceleration.0 * time.delta_seconds());
+        linear_velocity.0 = linear_velocity.0.move_towards(
+            direction * MAX_PROJECTILE_SPEED,
+            linear_acceleration.0 * time.delta_seconds(),
+        );
     }
 }
