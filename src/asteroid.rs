@@ -1,8 +1,11 @@
+use avian2d::{math::PI, prelude::*};
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+use bevy_transform_interpolation::*;
+use log::info;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
-use crate::GameState;
+use crate::{stats::{AngularAcceleration, LinearAcceleration}, GameState};
 
 pub fn plugin(app: &mut App) {
     app.configure_loading_state(
@@ -12,6 +15,7 @@ pub fn plugin(app: &mut App) {
     app.insert_resource(AsteroidID(0));
     app.observe(spawn_asteroid);
     app.add_systems(OnEnter(GameState::Playing), (setup_asteroid_spawners, spawn_asteroids).chain());
+    app.add_systems(FixedUpdate, move_asteroids);
 }
 
 #[derive(AssetCollection, Resource)]
@@ -82,6 +86,8 @@ fn spawn_asteroid(trigger: Trigger<SpawnAsteroid>, mut commands: Commands, asset
     let event = trigger.event();
 
     commands.spawn((
+        // TODO: Add a `#get_name()` method to 
+        // AsteroidKind.
         Name::new("Basic Asteroid"),
         StateScoped(GameState::Playing),
         Asteroid {
@@ -93,6 +99,14 @@ fn spawn_asteroid(trigger: Trigger<SpawnAsteroid>, mut commands: Commands, asset
             texture: event.kind.get_texture(assets),
             ..default()
         },
+        RigidBody::Kinematic,
+        // TODO: Add a `#get_collider_radius()` method
+        // to AsteroidKind.
+        Collider::circle(100.),
+        TranslationInterpolation,
+        RotationInterpolation,
+        LinearAcceleration(50.),
+        AngularAcceleration(1.0),
     ));
 
     // Increment the ID so that the next spawned
@@ -108,6 +122,27 @@ fn spawn_asteroid(trigger: Trigger<SpawnAsteroid>, mut commands: Commands, asset
     // or the user's PC is on fire from simply
     // spawning too many entities at once.
     asteroid_id.0 = asteroid_id.0.wrapping_add(1);
+}
+
+fn move_asteroids(mut query: Query<(
+    &Asteroid,
+    &LinearAcceleration,
+    &AngularAcceleration,
+    &mut LinearVelocity,
+    &mut AngularVelocity,
+)>,
+    time: Res<Time<Fixed>>,
+) {
+    const LINEAR_MAX_SPEED: f32 = 100.;
+    const ANGULAR_MAX_SPEED: f32 = PI;
+
+    for (asteroid, linear_acceleration, angular_acceleration, mut linear_velocity, mut angular_velocity) in &mut query {
+        let target_velocity = (asteroid.direction * LINEAR_MAX_SPEED).xy();
+
+        linear_velocity.0 = linear_velocity.0.move_towards(target_velocity, linear_acceleration.0 * time.delta_seconds());
+
+        angular_velocity.0 = angular_velocity.0.lerp(ANGULAR_MAX_SPEED, angular_acceleration.0 * time.delta_seconds());
+    }
 }
 
 #[derive(Component, Reflect, Clone)]
@@ -181,9 +216,8 @@ fn setup_asteroid_spawners(mut commands: Commands) {
 
     for spawner_point in spawner_points {
         let mut rng = thread_rng();
-        let random_angle: f32 = rng.gen_range(-1.5..=1.5);
-        let mut direction = Transform::from_translation((Vec3::ZERO - spawner_point).normalize_or_zero());
-        direction.rotate_local_z(random_angle);
+        let target: Vec3 = Vec3::new(rng.gen_range(-320.0..=320.0), rng.gen_range(-130.0..=130.0), 0.0);
+        let direction = Transform::from_translation((target - spawner_point).normalize_or_zero());
 
         // Direction from A to B is B - A;
         // we then normalize it to make it a unit vector.
