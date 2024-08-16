@@ -108,7 +108,7 @@ fn spawn_asteroid(
         RigidBody::Kinematic,
         // TODO: Add a `#get_collider_radius()` method
         // to AsteroidKind.
-        Collider::circle(100.),
+        Collider::circle(28.),
         TranslationInterpolation,
         RotationInterpolation,
         LinearAcceleration(50.),

@@ -47,7 +47,7 @@ fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
         StateScoped(GameState::Playing),
         Player,
         RigidBody::Kinematic,
-        Collider::circle(1.),
+        Collider::triangle(Vec2::new(-30.0, -28.0), Vec2::new(30.0, -28.0), Vec2::new(0.0, 30.0)),
         TranslationInterpolation,
         RotationInterpolation,
         LinearAcceleration(150.),

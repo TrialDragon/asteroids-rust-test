@@ -46,7 +46,7 @@ fn spawn_projectile(
         Projectile,
         StateScoped(GameState::Playing),
         RigidBody::Kinematic,
-        Collider::capsule(0.5, 3.),
+        Collider::circle(4.),
         DebugRender::default(),
         LinearAcceleration(8000.),
         TranslationInterpolation,
