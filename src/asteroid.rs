@@ -15,9 +15,11 @@ pub fn plugin(app: &mut App) {
     );
     app.insert_resource(AsteroidID(0));
     app.observe(spawn_asteroid);
+    app.observe(spawn_asteroids);
+    app.observe(destroy_asteroid);
     app.add_systems(
         OnEnter(GameState::Playing),
-        (setup_asteroid_spawners, spawn_asteroids).chain(),
+        (setup_asteroid_spawners, initial_spawn_asteroids).chain(),
     );
     app.add_systems(FixedUpdate, move_asteroids);
 }
@@ -252,11 +254,26 @@ fn setup_asteroid_spawners(mut commands: Commands) {
     }
 }
 
-fn spawn_asteroids(query: Query<(&AsteroidSpawner, &Transform)>, mut commands: Commands) {
+#[derive(Event, Debug)]
+pub struct SpawnAsteroids {
+    amount: u16,
+}
+
+impl SpawnAsteroids {
+    pub fn new(amount: u16) -> Self {
+        Self { amount }
+    }
+}
+
+fn spawn_asteroids(
+    trigger: Trigger<SpawnAsteroids>,
+    query: Query<(&AsteroidSpawner, &Transform)>,
+    mut commands: Commands,
+) {
     let mut spawned_asteroids: Vec<Vec3> = vec![];
     let mut rng = rand::thread_rng();
 
-    while spawned_asteroids.len() < 5 {
+    while spawned_asteroids.len() < trigger.event().amount as usize {
         let (spawner, transform) = query.iter().choose(&mut rng).unwrap();
 
         if spawned_asteroids.contains(&transform.translation) {
@@ -273,4 +290,16 @@ fn spawn_asteroids(query: Query<(&AsteroidSpawner, &Transform)>, mut commands: C
 
         spawned_asteroids.push(transform.translation);
     }
+}
+
+fn initial_spawn_asteroids(mut commands: Commands) {
+    commands.trigger(SpawnAsteroids::new(5));
+}
+
+#[derive(Event, Debug)]
+pub struct DestroyAsteroid(Entity);
+
+fn destroy_asteroid(trigger: Trigger<DestroyAsteroid>, mut commands: Commands) {
+    commands.entity(trigger.event().0).despawn_recursive();
+    commands.trigger(SpawnAsteroids::new(1));
 }
