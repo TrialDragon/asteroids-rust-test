@@ -8,4 +8,13 @@
     "image.basic_asteroid": File (
         path: "images/basic_asteroid.png",
     ),
+    "image.small_basic_asteroid": File (
+        path: "images/small_basic_asteroid.png",
+    ),
+    "image.advanced_asteroid": File (
+        path: "images/advanced_asteroid.png",
+    ),
+    "image.small_advanced_asteroid": File (
+        path: "images/small_advanced_asteroid.png",
+    ),
 })

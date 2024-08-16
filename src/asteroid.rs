@@ -31,6 +31,12 @@ pub fn plugin(app: &mut App) {
 struct AsteroidAssets {
     #[asset(key = "image.basic_asteroid")]
     basic_asteroid: Handle<Image>,
+    #[asset(key = "image.small_basic_asteroid")]
+    small_basic_asteroid: Handle<Image>,
+    #[asset(key = "image.advanced_asteroid")]
+    advanced_asteroid: Handle<Image>,
+    #[asset(key = "image.small_advanced_asteroid")]
+    small_advanced_asteroid: Handle<Image>,
 }
 
 #[derive(Resource)]
@@ -52,6 +58,15 @@ enum AsteroidKind {
 }
 
 impl AsteroidKind {
+    pub fn get_name(&self) -> String {
+        String::from(
+            match self {
+                AsteroidKind::Basic => "BasicAsteroid",
+                AsteroidKind::SmallBasic => "SmallBasicAsteroid",
+                AsteroidKind::Advanced => "AdvancedAsteroid",
+                AsteroidKind::SmallAdvanced => "SmallAdvancedAsteroid",
+            })
+    }
     pub fn get_health(&self) -> u16 {
         match self {
             AsteroidKind::Basic | AsteroidKind::SmallBasic => 1,
@@ -62,9 +77,9 @@ impl AsteroidKind {
     fn get_texture(&self, assets: Res<AsteroidAssets>) -> Handle<Image> {
         match self {
             AsteroidKind::Basic => assets.basic_asteroid.clone(),
-            AsteroidKind::Advanced => todo!(),
-            AsteroidKind::SmallBasic => todo!(),
-            AsteroidKind::SmallAdvanced => todo!(),
+            AsteroidKind::Advanced => assets.advanced_asteroid.clone(),
+            AsteroidKind::SmallBasic => assets.small_basic_asteroid.clone(),
+            AsteroidKind::SmallAdvanced => assets.small_advanced_asteroid.clone(),
         }
     }
 
@@ -72,6 +87,13 @@ impl AsteroidKind {
         match self {
             AsteroidKind::Basic | AsteroidKind::SmallBasic => 1,
             AsteroidKind::Advanced | AsteroidKind::SmallAdvanced => 5,
+        }
+    }
+
+    fn get_collider_radius(&self) -> f32 {
+        match self {
+            AsteroidKind::Basic | AsteroidKind::Advanced => 28.,
+            AsteroidKind::SmallBasic | AsteroidKind::SmallAdvanced => 14.,
         }
     }
 }
@@ -102,9 +124,7 @@ fn spawn_asteroid(
     let event = trigger.event();
 
     commands.spawn((
-        // TODO: Add a `#get_name()` method to
-        // AsteroidKind.
-        Name::new("Basic Asteroid"),
+        Name::new(event.kind.get_name()),
         StateScoped(GameState::Playing),
         Asteroid {
             id: asteroid_id.0,
@@ -122,7 +142,7 @@ fn spawn_asteroid(
         RigidBody::Kinematic,
         // TODO: Add a `#get_collider_radius()` method
         // to AsteroidKind.
-        Collider::circle(28.),
+        Collider::circle(event.kind.get_collider_radius()),
         TranslationInterpolation,
         RotationInterpolation,
         LinearAcceleration(50.),
@@ -293,8 +313,6 @@ fn spawn_asteroids(
             continue;
         }
 
-        // TODO: Expand to use multiple types of
-        // asteroids.
         commands.trigger(SpawnAsteroid::new(
             AsteroidKind::Basic,
             transform.translation,
