@@ -5,9 +5,7 @@ use bevy_transform_interpolation::{RotationInterpolation, TranslationInterpolati
 use leafwing_input_manager::prelude::*;
 
 use crate::{
-    projectile::SpawnProjectile,
-    stats::{AngularAcceleration, Health, LinearAcceleration},
-    Action, GameState,
+    projectile::SpawnProjectile, stats::{AngularAcceleration, Health, LinearAcceleration}, viewport_bound::WrapMovement, Action, GameState
 };
 
 pub fn plugin(app: &mut App) {
@@ -16,11 +14,6 @@ pub fn plugin(app: &mut App) {
     );
     app.add_systems(OnEnter(GameState::Playing), spawn_player);
     app.add_systems(FixedUpdate, move_player);
-    // This is in Update instead of FixedUpdate
-    // because transform interpolation won't allow
-    // the teleporting needed in FixedUpdate, only
-    // non-fixed-timestep schedules.
-    app.add_systems(Update, player_movement_wrapping);
     app.add_systems(Update, player_shoot);
 }
 
@@ -55,6 +48,7 @@ fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
         ),
         TranslationInterpolation,
         RotationInterpolation,
+        WrapMovement,
         LinearAcceleration(150.),
         AngularAcceleration(2.),
         SpriteBundle {
@@ -127,22 +121,6 @@ fn move_player(
             MAX_ANGULAR_SPEED * -rotation,
             angular_acceleration.0 * time.delta_seconds(),
         );
-    }
-}
-
-fn player_movement_wrapping(mut query: Query<&mut Transform, With<Player>>) {
-    for mut transform in &mut query {
-        if transform.translation.x >= 640. {
-            transform.translation.x = -639.;
-        } else if transform.translation.x <= -640. {
-            transform.translation.x = 639.;
-        }
-
-        if transform.translation.y >= 360. {
-            transform.translation.y = -359.;
-        } else if transform.translation.y <= -360. {
-            transform.translation.y = 359.;
-        }
     }
 }
 

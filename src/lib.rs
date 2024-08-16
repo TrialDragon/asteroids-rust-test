@@ -5,6 +5,7 @@ pub mod asteroid;
 pub mod player;
 pub mod projectile;
 pub mod stats;
+pub mod viewport_bound;
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Reflect)]
 pub enum Action {
