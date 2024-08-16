@@ -2,11 +2,10 @@ use avian2d::{math::PI, prelude::*};
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_transform_interpolation::*;
-use log::info;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 use crate::{
-    stats::{AngularAcceleration, LinearAcceleration},
+    stats::{AngularAcceleration, Health, LinearAcceleration},
     GameState,
 };
 
@@ -48,8 +47,7 @@ enum AsteroidKind {
 }
 
 impl AsteroidKind {
-    // TODO: use this for being shot at.
-    pub fn _get_health(&self) -> u32 {
+    pub fn get_health(&self) -> u16 {
         match self {
             AsteroidKind::Basic | AsteroidKind::SmallBasic => 1,
             AsteroidKind::Advanced | AsteroidKind::SmallAdvanced => 3,
@@ -100,6 +98,7 @@ fn spawn_asteroid(
             id: asteroid_id.0,
             direction: event.direction,
         },
+        Health::new(event.kind.get_health()),
         SpriteBundle {
             transform: Transform::from_translation(event.position),
             texture: event.kind.get_texture(assets),

@@ -6,7 +6,7 @@ use leafwing_input_manager::prelude::*;
 
 use crate::{
     projectile::SpawnProjectile,
-    stats::{AngularAcceleration, LinearAcceleration},
+    stats::{AngularAcceleration, Health, LinearAcceleration},
     Action, GameState,
 };
 
@@ -46,8 +46,13 @@ fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
         Name::new("Player"),
         StateScoped(GameState::Playing),
         Player,
+        Health::new(3),
         RigidBody::Kinematic,
-        Collider::triangle(Vec2::new(-30.0, -28.0), Vec2::new(30.0, -28.0), Vec2::new(0.0, 30.0)),
+        Collider::triangle(
+            Vec2::new(-30.0, -28.0),
+            Vec2::new(30.0, -28.0),
+            Vec2::new(0.0, 30.0),
+        ),
         TranslationInterpolation,
         RotationInterpolation,
         LinearAcceleration(150.),

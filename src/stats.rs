@@ -14,15 +14,12 @@ pub struct AngularAcceleration(pub f32);
 #[reflect(Component)]
 pub struct Health {
     max: u16,
-    current:u16
+    current: u16,
 }
 
 impl Health {
     pub fn new(max: u16) -> Self {
-        Self {
-            max,
-            current: 0,
-        }
+        Self { max, current: 0 }
     }
 
     pub fn add(&mut self, health: u16) {
@@ -38,5 +35,3 @@ impl Health {
         self.current
     }
 }
-
-
