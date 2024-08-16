@@ -5,7 +5,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_transform_interpolation::*;
 use leafwing_input_manager::prelude::*;
 
-use game_library::{asteroid, player, projectile, viewport_bound, Action, GameState};
+use game_library::{asteroid, destruction, player, projectile, viewport_bound, Action, GameState};
 
 fn main() {
     let mut app = App::new();
@@ -19,10 +19,11 @@ fn main() {
             .continue_to_state(GameState::Playing)
             .with_dynamic_assets_file::<StandardDynamicAssetCollection>("game.assets.ron"),
     );
-    app.add_plugins(viewport_bound::plugin);
+    app.add_plugins(destruction::plugin);
+    app.add_plugins(asteroid::plugin);
     app.add_plugins(player::plugin);
     app.add_plugins(projectile::plugin);
-    app.add_plugins(asteroid::plugin);
+    app.add_plugins(viewport_bound::plugin);
     app.add_systems(Startup, setup_camera);
 
     // Development plugins, systems, et cetera.

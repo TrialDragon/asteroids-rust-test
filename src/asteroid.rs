@@ -5,8 +5,7 @@ use bevy_transform_interpolation::*;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 use crate::{
-    stats::{AngularAcceleration, Health, LinearAcceleration},
-    GameState,
+    destruction::Destroyed, stats::{AngularAcceleration, Health, LinearAcceleration}, viewport_bound::DestroyOutOfBounds, GameState
 };
 
 pub fn plugin(app: &mut App) {
@@ -16,12 +15,12 @@ pub fn plugin(app: &mut App) {
     app.insert_resource(AsteroidID(0));
     app.observe(spawn_asteroid);
     app.observe(spawn_asteroids);
-    app.observe(destroy_asteroid);
     app.add_systems(
         OnEnter(GameState::Playing),
         (setup_asteroid_spawners, initial_spawn_asteroids).chain(),
     );
     app.add_systems(FixedUpdate, move_asteroids);
+    app.add_systems(Update, destroy_asteroids);
 }
 
 #[derive(AssetCollection, Resource)]
@@ -100,6 +99,7 @@ fn spawn_asteroid(
             id: asteroid_id.0,
             direction: event.direction,
         },
+        DestroyOutOfBounds,
         Health::new(event.kind.get_health()),
         SpriteBundle {
             transform: Transform::from_translation(event.position),
@@ -296,10 +296,11 @@ fn initial_spawn_asteroids(mut commands: Commands) {
     commands.trigger(SpawnAsteroids::new(5));
 }
 
-#[derive(Event, Debug)]
-pub struct DestroyAsteroid(Entity);
-
-fn destroy_asteroid(trigger: Trigger<DestroyAsteroid>, mut commands: Commands) {
-    commands.entity(trigger.event().0).despawn_recursive();
-    commands.trigger(SpawnAsteroids::new(1));
+fn destroy_asteroids(mut event_reader: EventReader<Destroyed>, asteroid_query: Query<(),With<Asteroid>>, mut commands: Commands) {
+    for entity in event_reader.read() {
+        if asteroid_query.contains(entity.0) {
+            commands.entity(entity.0).despawn_recursive();
+            commands.trigger(SpawnAsteroids::new(1));
+        }
+    }
 }

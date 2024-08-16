@@ -1,7 +1,7 @@
 use avian2d::prelude::*;
 use bevy::prelude::*;
 
-use crate::GameState;
+use crate::{destruction::Destroyed, GameState};
 
 pub fn plugin(app: &mut App) {
     // TODO: This could probably be polished
@@ -35,8 +35,11 @@ fn setup_viewport_collider(mut commands: Commands) {
     ));
 }
 
-fn movement_wrapping(mut event_reader: EventReader<CollisionEnded>, mut wrap_movement_query: Query<&mut Transform, With<WrapMovement>>, viewport_collider_query: Query<&Collider, With<ViewportCollider>>) {
-    
+fn movement_wrapping(
+    mut event_reader: EventReader<CollisionEnded>,
+    mut wrap_movement_query: Query<&mut Transform, With<WrapMovement>>,
+    viewport_collider_query: Query<&Collider, With<ViewportCollider>>
+) {
     for CollisionEnded(entity1, entity2) in event_reader.read() {
         let mut logic = |first_entity: &Entity, second_entity: &Entity| {
             if wrap_movement_query.contains(*first_entity) && viewport_collider_query.contains(*second_entity) {
@@ -63,6 +66,29 @@ fn movement_wrapping(mut event_reader: EventReader<CollisionEnded>, mut wrap_mov
     }
 }
 
-fn out_of_bounds_destruction() {
-    
+fn out_of_bounds_destruction(
+    mut event_reader: EventReader<CollisionEnded>,
+    mut destroyed_event_writer: EventWriter<Destroyed>, 
+    mut out_of_bounds_query: Query<&Transform, With<DestroyOutOfBounds>>,
+    viewport_collider_query: Query<&Collider, With<ViewportCollider>>
+) {
+    for CollisionEnded(entity1, entity2) in event_reader.read() {
+        let mut logic = |first_entity: &Entity, second_entity: &Entity| {
+            if out_of_bounds_query.contains(*first_entity) && viewport_collider_query.contains(*second_entity) {
+                let position = out_of_bounds_query.get_mut(*first_entity).unwrap().translation;
+                // TODO: Viewport size constant refactor.
+                let out_of_bounds =
+                    position.x > 640. ||
+                    position.x < -640. ||
+                    position.y > 360. ||
+                    position.y < -360.;
+                if out_of_bounds {
+                    destroyed_event_writer.send(Destroyed(*first_entity));
+                }
+            }
+        };
+
+        logic(entity1, entity2);
+        logic(entity2, entity1);
+    }
 }
