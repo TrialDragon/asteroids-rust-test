@@ -6,7 +6,7 @@ pub fn plugin(app: &mut App) {
 
 #[derive(Resource, Default)]
 pub struct Score {
-    current: u32,
-    high: u32,
-    previous_high: u32,
+    pub current: u32,
+    pub high: u32,
+    pub previous_high: u32,
 }

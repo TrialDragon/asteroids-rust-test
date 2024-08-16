@@ -6,7 +6,8 @@ use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 use crate::{
     destruction::Destroyed,
-    stats::{AngularAcceleration, Health, LinearAcceleration},
+    projectile::{Shootable, Shot},
+    stats::{AngularAcceleration, Health, LinearAcceleration, Points},
     viewport_bound::DestroyOutOfBounds,
     GameState,
 };
@@ -23,7 +24,7 @@ pub fn plugin(app: &mut App) {
         (setup_asteroid_spawners, initial_spawn_asteroids).chain(),
     );
     app.add_systems(FixedUpdate, move_asteroids);
-    app.add_systems(Update, destroy_asteroids);
+    app.add_systems(Update, (shot_asteroids, destroyed_asteroids).chain());
 }
 
 #[derive(AssetCollection, Resource)]
@@ -66,6 +67,13 @@ impl AsteroidKind {
             AsteroidKind::SmallAdvanced => todo!(),
         }
     }
+
+    fn get_points(&self) -> u32 {
+        match self {
+            AsteroidKind::Basic | AsteroidKind::SmallBasic => 1,
+            AsteroidKind::Advanced | AsteroidKind::SmallAdvanced => 5,
+        }
+    }
 }
 
 #[derive(Event, Debug)]
@@ -103,7 +111,9 @@ fn spawn_asteroid(
             direction: event.direction,
         },
         DestroyOutOfBounds,
+        Shootable,
         Health::new(event.kind.get_health()),
+        Points(event.kind.get_points()),
         SpriteBundle {
             transform: Transform::from_translation(event.position),
             texture: event.kind.get_texture(assets),
@@ -299,7 +309,7 @@ fn initial_spawn_asteroids(mut commands: Commands) {
     commands.trigger(SpawnAsteroids::new(5));
 }
 
-fn destroy_asteroids(
+fn destroyed_asteroids(
     mut event_reader: EventReader<Destroyed>,
     asteroid_query: Query<(), With<Asteroid>>,
     mut commands: Commands,
@@ -308,6 +318,18 @@ fn destroy_asteroids(
         if asteroid_query.contains(entity.0) {
             commands.entity(entity.0).despawn_recursive();
             commands.trigger(SpawnAsteroids::new(1));
+        }
+    }
+}
+
+fn shot_asteroids(
+    mut shot_event_reader: EventReader<Shot>,
+    mut asteroid_query: Query<&mut Health, With<Asteroid>>,
+) {
+    for Shot(entity) in shot_event_reader.read() {
+        if asteroid_query.contains(*entity) {
+            let mut health = asteroid_query.get_mut(*entity).unwrap();
+            health.sub(1);
         }
     }
 }
