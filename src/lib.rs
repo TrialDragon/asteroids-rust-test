@@ -5,6 +5,7 @@ pub mod asteroid;
 pub mod destruction;
 pub mod player;
 pub mod projectile;
+pub mod score;
 pub mod stats;
 pub mod viewport_bound;
 
