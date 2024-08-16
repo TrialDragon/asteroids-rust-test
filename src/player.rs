@@ -5,7 +5,10 @@ use bevy_transform_interpolation::{RotationInterpolation, TranslationInterpolati
 use leafwing_input_manager::prelude::*;
 
 use crate::{
-    projectile::SpawnProjectile, stats::{AngularAcceleration, Health, LinearAcceleration}, viewport_bound::WrapMovement, Action, GameState
+    projectile::SpawnProjectile,
+    stats::{AngularAcceleration, Health, LinearAcceleration},
+    viewport_bound::WrapMovement,
+    Action, GameState,
 };
 
 pub fn plugin(app: &mut App) {

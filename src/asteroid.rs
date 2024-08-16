@@ -5,7 +5,10 @@ use bevy_transform_interpolation::*;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 use crate::{
-    destruction::Destroyed, stats::{AngularAcceleration, Health, LinearAcceleration}, viewport_bound::DestroyOutOfBounds, GameState
+    destruction::Destroyed,
+    stats::{AngularAcceleration, Health, LinearAcceleration},
+    viewport_bound::DestroyOutOfBounds,
+    GameState,
 };
 
 pub fn plugin(app: &mut App) {
@@ -296,7 +299,11 @@ fn initial_spawn_asteroids(mut commands: Commands) {
     commands.trigger(SpawnAsteroids::new(5));
 }
 
-fn destroy_asteroids(mut event_reader: EventReader<Destroyed>, asteroid_query: Query<(),With<Asteroid>>, mut commands: Commands) {
+fn destroy_asteroids(
+    mut event_reader: EventReader<Destroyed>,
+    asteroid_query: Query<(), With<Asteroid>>,
+    mut commands: Commands,
+) {
     for entity in event_reader.read() {
         if asteroid_query.contains(entity.0) {
             commands.entity(entity.0).despawn_recursive();

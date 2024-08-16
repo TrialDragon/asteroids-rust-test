@@ -31,18 +31,20 @@ fn setup_viewport_collider(mut commands: Commands) {
         StateScoped(GameState::Playing),
         // TODO: refactor the size out
         // into a `lib.rs` constant.
-        Collider::rectangle(1280., 720.)
+        Collider::rectangle(1280., 720.),
     ));
 }
 
 fn movement_wrapping(
     mut event_reader: EventReader<CollisionEnded>,
     mut wrap_movement_query: Query<&mut Transform, With<WrapMovement>>,
-    viewport_collider_query: Query<&Collider, With<ViewportCollider>>
+    viewport_collider_query: Query<&Collider, With<ViewportCollider>>,
 ) {
     for CollisionEnded(entity1, entity2) in event_reader.read() {
         let mut logic = |first_entity: &Entity, second_entity: &Entity| {
-            if wrap_movement_query.contains(*first_entity) && viewport_collider_query.contains(*second_entity) {
+            if wrap_movement_query.contains(*first_entity)
+                && viewport_collider_query.contains(*second_entity)
+            {
                 let mut transform = wrap_movement_query.get_mut(*first_entity).unwrap();
                 let position = transform.translation;
                 // TODO: Viewport size constant refactor.
@@ -57,7 +59,6 @@ fn movement_wrapping(
                 } else if position.y < -360. {
                     transform.translation.y = 359.;
                 }
-                
             }
         };
 
@@ -68,20 +69,24 @@ fn movement_wrapping(
 
 fn out_of_bounds_destruction(
     mut event_reader: EventReader<CollisionEnded>,
-    mut destroyed_event_writer: EventWriter<Destroyed>, 
+    mut destroyed_event_writer: EventWriter<Destroyed>,
     mut out_of_bounds_query: Query<&Transform, With<DestroyOutOfBounds>>,
-    viewport_collider_query: Query<&Collider, With<ViewportCollider>>
+    viewport_collider_query: Query<&Collider, With<ViewportCollider>>,
 ) {
     for CollisionEnded(entity1, entity2) in event_reader.read() {
         let mut logic = |first_entity: &Entity, second_entity: &Entity| {
-            if out_of_bounds_query.contains(*first_entity) && viewport_collider_query.contains(*second_entity) {
-                let position = out_of_bounds_query.get_mut(*first_entity).unwrap().translation;
+            if out_of_bounds_query.contains(*first_entity)
+                && viewport_collider_query.contains(*second_entity)
+            {
+                let position = out_of_bounds_query
+                    .get_mut(*first_entity)
+                    .unwrap()
+                    .translation;
                 // TODO: Viewport size constant refactor.
-                let out_of_bounds =
-                    position.x > 640. ||
-                    position.x < -640. ||
-                    position.y > 360. ||
-                    position.y < -360.;
+                let out_of_bounds = position.x > 640.
+                    || position.x < -640.
+                    || position.y > 360.
+                    || position.y < -360.;
                 if out_of_bounds {
                     destroyed_event_writer.send(Destroyed(*first_entity));
                 }
