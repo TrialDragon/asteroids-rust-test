@@ -9,6 +9,7 @@ pub mod player;
 pub mod projectile;
 pub mod score;
 pub mod stats;
+pub mod title;
 pub mod viewport_bound;
 
 pub const VIEWPORT_WIDTH: f32 = 1280.;
@@ -39,7 +40,7 @@ impl Actionlike for Action {
 pub enum GameState {
     #[default]
     Loading,
-    MainMenu,
+    Title,
     Playing,
     GameOver,
 }
