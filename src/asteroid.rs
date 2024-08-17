@@ -5,7 +5,12 @@ use bevy_transform_interpolation::*;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 use crate::{
-    destruction::Destroyed, projectile::{Shootable, Shot}, score::Score, stats::{AngularAcceleration, Health, LinearAcceleration, Points}, viewport_bound::DestroyOutOfBounds, GameState, BOTTOM_VIEWPORT_EDGE, LEFT_VIEWPORT_EDGE, RIGHT_VIEWPORT_EDGE, TOP_VIEWPORT_EDGE
+    destruction::Destroyed,
+    projectile::{Shootable, Shot},
+    score::Score,
+    stats::{AngularAcceleration, Health, LinearAcceleration, Points},
+    viewport_bound::DestroyOutOfBounds,
+    GameState, BOTTOM_VIEWPORT_EDGE, LEFT_VIEWPORT_EDGE, RIGHT_VIEWPORT_EDGE, TOP_VIEWPORT_EDGE,
 };
 
 pub fn plugin(app: &mut App) {
@@ -88,13 +93,12 @@ enum AsteroidKind {
 
 impl AsteroidKind {
     pub fn get_name(&self) -> String {
-        String::from(
-            match self {
-                AsteroidKind::Basic => "BasicAsteroid",
-                AsteroidKind::SmallBasic => "SmallBasicAsteroid",
-                AsteroidKind::Advanced => "AdvancedAsteroid",
-                AsteroidKind::SmallAdvanced => "SmallAdvancedAsteroid",
-            })
+        String::from(match self {
+            AsteroidKind::Basic => "BasicAsteroid",
+            AsteroidKind::SmallBasic => "SmallBasicAsteroid",
+            AsteroidKind::Advanced => "AdvancedAsteroid",
+            AsteroidKind::SmallAdvanced => "SmallAdvancedAsteroid",
+        })
     }
     pub fn get_health(&self) -> u16 {
         match self {
@@ -193,7 +197,6 @@ fn spawn_asteroid(
         LinearAcceleration(50.),
         AngularAcceleration(1.0),
     ));
-
 }
 
 fn move_asteroids(
@@ -294,11 +297,27 @@ fn setup_asteroid_spawners(mut commands: Commands) {
         Vec3::new(OFFSET_LEFT_VIEWPORT_EDGE, 0.0, 0.0),
         Vec3::new(OFFSET_RIGHT_VIEWPORT_EDGE, 0.0, 0.0),
         // Top edge.
-        Vec3::new(OFFSET_LEFT_VIEWPORT_EDGE / 2., OFFSET_TOP_VIEWPORT_EDGE, 0.0),
-        Vec3::new(OFFSET_RIGHT_VIEWPORT_EDGE / 2., OFFSET_TOP_VIEWPORT_EDGE, 0.0),
+        Vec3::new(
+            OFFSET_LEFT_VIEWPORT_EDGE / 2.,
+            OFFSET_TOP_VIEWPORT_EDGE,
+            0.0,
+        ),
+        Vec3::new(
+            OFFSET_RIGHT_VIEWPORT_EDGE / 2.,
+            OFFSET_TOP_VIEWPORT_EDGE,
+            0.0,
+        ),
         // Bottom edge.
-        Vec3::new(OFFSET_LEFT_VIEWPORT_EDGE / 2., OFFSET_BOTTOM_VIEWPORT_EDGE, 0.0),
-        Vec3::new(OFFSET_RIGHT_VIEWPORT_EDGE / 2., OFFSET_BOTTOM_VIEWPORT_EDGE, 0.0),
+        Vec3::new(
+            OFFSET_LEFT_VIEWPORT_EDGE / 2.,
+            OFFSET_BOTTOM_VIEWPORT_EDGE,
+            0.0,
+        ),
+        Vec3::new(
+            OFFSET_RIGHT_VIEWPORT_EDGE / 2.,
+            OFFSET_BOTTOM_VIEWPORT_EDGE,
+            0.0,
+        ),
     ];
 
     for spawner_point in spawner_points {
@@ -348,10 +367,14 @@ fn spawn_asteroids(
 
         let spawn_basic: bool = rng.gen();
         commands.trigger(SpawnAsteroid::new(
-            if spawn_basic {AsteroidKind::Basic} else {AsteroidKind::Advanced},
+            if spawn_basic {
+                AsteroidKind::Basic
+            } else {
+                AsteroidKind::Advanced
+            },
             *transform,
             spawner.normal_direction,
-            asteroid_id.get()
+            asteroid_id.get(),
         ));
 
         spawned_asteroids.push(transform.translation);
@@ -380,11 +403,14 @@ fn destroyed_asteroids(
 
                         let mut new_direction = Transform::from_translation(asteroid.direction);
                         new_direction.rotate_z(n as f32 * (PI / 8.));
-                        let new_direction = new_direction.rotation.mul_vec3(new_direction.translation).normalize_or_zero();
+                        let new_direction = new_direction
+                            .rotation
+                            .mul_vec3(new_direction.translation)
+                            .normalize_or_zero();
 
                         let mut new_transform = *transform;
                         new_transform.translation += new_direction * OFFSET;
-                        
+
                         commands.trigger(SpawnAsteroid::new(
                             kind.get_smaller(),
                             new_transform,
@@ -404,7 +430,7 @@ fn destroyed_asteroids(
                     commands.trigger(SpawnAsteroids::new(1));
                     small_asteroid_map.0.remove(&asteroid.id);
                 }
-            }            
+            }
 
             commands.entity(*entity).despawn_recursive();
         }

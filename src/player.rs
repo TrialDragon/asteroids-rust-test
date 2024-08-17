@@ -5,7 +5,12 @@ use bevy_transform_interpolation::{RotationInterpolation, TranslationInterpolati
 use leafwing_input_manager::prelude::*;
 
 use crate::{
-    asteroid::Asteroid, destruction::Destroyed, projectile::SpawnProjectile, stats::{AngularAcceleration, Health, LinearAcceleration}, viewport_bound::WrapMovement, Action, GameState
+    asteroid::Asteroid,
+    destruction::Destroyed,
+    projectile::SpawnProjectile,
+    stats::{AngularAcceleration, Health, LinearAcceleration},
+    viewport_bound::WrapMovement,
+    Action, GameState,
 };
 
 pub fn plugin(app: &mut App) {
@@ -14,7 +19,13 @@ pub fn plugin(app: &mut App) {
     );
     app.add_systems(OnEnter(GameState::Playing), spawn_player);
     app.add_systems(FixedUpdate, move_player);
-    app.add_systems(Update, (player_shoot, (player_destruction, collision_with_asteroid).chain()));
+    app.add_systems(
+        Update,
+        (
+            player_shoot,
+            (player_destruction, collision_with_asteroid).chain(),
+        ),
+    );
 }
 
 #[derive(AssetCollection, Resource)]

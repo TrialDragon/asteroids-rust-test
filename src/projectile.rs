@@ -3,7 +3,10 @@ use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_transform_interpolation::*;
 
-use crate::{destruction::Destroyed, stats::LinearAcceleration, viewport_bound::DestroyOutOfBounds, GameState};
+use crate::{
+    destruction::Destroyed, stats::LinearAcceleration, viewport_bound::DestroyOutOfBounds,
+    GameState,
+};
 
 pub fn plugin(app: &mut App) {
     app.configure_loading_state(
@@ -96,7 +99,8 @@ fn shoot_collisions(
 ) {
     for CollisionStarted(entity1, entity2) in collision_event_reader.read() {
         let mut logic = |first_entity: &Entity, second_entity: &Entity| {
-            if shootable_query.contains(*first_entity) && projectile_query.contains(*second_entity) {
+            if shootable_query.contains(*first_entity) && projectile_query.contains(*second_entity)
+            {
                 shot_event_writer.send(Shot(*first_entity));
                 destroyed_event_writer.send(Destroyed(*second_entity));
             }
@@ -105,7 +109,6 @@ fn shoot_collisions(
         logic(entity1, entity2);
         logic(entity2, entity1);
     }
-
 }
 
 fn destroy_projectiles(

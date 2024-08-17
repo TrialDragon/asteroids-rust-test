@@ -6,7 +6,8 @@ use bevy_transform_interpolation::*;
 use leafwing_input_manager::prelude::*;
 
 use game_library::{
-    asteroid, destruction, game_over, player, projectile, score, stats, viewport_bound, Action, GameState, VIEWPORT_HEIGHT, VIEWPORT_WIDTH
+    asteroid, destruction, game_over, player, projectile, score, stats, viewport_bound, Action,
+    GameState, VIEWPORT_HEIGHT, VIEWPORT_WIDTH,
 };
 
 fn main() {
