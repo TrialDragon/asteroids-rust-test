@@ -1,7 +1,6 @@
 use avian2d::prelude::*;
 use bevy::{prelude::*, render::camera::ScalingMode};
 use bevy_asset_loader::prelude::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_transform_interpolation::*;
 use leafwing_input_manager::prelude::*;
 
@@ -41,7 +40,7 @@ fn main() {
     #[cfg(feature = "dev")]
     {
         app.add_plugins(PhysicsDebugPlugin::default());
-        app.add_plugins(WorldInspectorPlugin::new());
+        app.add_plugins(bevy_inspector_egui::quick::WorldInspectorPlugin::new());
     }
 
     app.run();
