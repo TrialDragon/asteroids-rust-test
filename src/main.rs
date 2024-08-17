@@ -6,7 +6,7 @@ use bevy_transform_interpolation::*;
 use leafwing_input_manager::prelude::*;
 
 use game_library::{
-    asteroid, destruction, player, projectile, score, stats, viewport_bound, Action, GameState,
+    asteroid, destruction, game_over, player, projectile, score, stats, viewport_bound, Action, GameState,
 };
 
 fn main() {
@@ -16,6 +16,7 @@ fn main() {
     app.add_plugins(TransformInterpolationPlugin::default());
     app.add_plugins(InputManagerPlugin::<Action>::default());
     app.init_state::<GameState>();
+    app.enable_state_scoped_entities::<GameState>();
     app.add_loading_state(
         LoadingState::new(GameState::Loading)
             .continue_to_state(GameState::Playing)
@@ -23,6 +24,7 @@ fn main() {
     );
     app.add_plugins(asteroid::plugin);
     app.add_plugins(destruction::plugin);
+    app.add_plugins(game_over::plugin);
     app.add_plugins(player::plugin);
     app.add_plugins(projectile::plugin);
     app.add_plugins(score::plugin);

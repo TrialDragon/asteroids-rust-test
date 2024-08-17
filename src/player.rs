@@ -147,10 +147,12 @@ fn player_destruction(
     mut destroyed_event_reader: EventReader<Destroyed>,
     query: Query<(), With<Player>>,
     mut commands: Commands,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     for Destroyed(entity) in destroyed_event_reader.read() {
         if query.contains(*entity) {
             commands.entity(*entity).despawn_recursive();
+            next_state.set(GameState::GameOver);
         }
     }
 }

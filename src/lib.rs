@@ -3,6 +3,7 @@ use leafwing_input_manager::prelude::*;
 
 pub mod asteroid;
 pub mod destruction;
+pub mod game_over;
 pub mod player;
 pub mod projectile;
 pub mod score;
