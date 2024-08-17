@@ -9,6 +9,7 @@ use game_library::{
     asteroid, destruction, game_over, health_pickup, player, projectile, score, stats,
     viewport_bound, Action, GameState, VIEWPORT_HEIGHT, VIEWPORT_WIDTH,
 };
+use sickle_ui::SickleUiPlugin;
 
 fn main() {
     let mut app = App::new();
@@ -16,6 +17,7 @@ fn main() {
     app.add_plugins(PhysicsPlugins::default());
     app.add_plugins(TransformInterpolationPlugin::default());
     app.add_plugins(InputManagerPlugin::<Action>::default());
+    app.add_plugins(SickleUiPlugin);
     app.init_state::<GameState>();
     app.enable_state_scoped_entities::<GameState>();
     app.add_loading_state(
