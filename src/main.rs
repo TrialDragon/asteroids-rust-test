@@ -31,6 +31,7 @@ fn main() {
     app.add_plugins(stats::plugin);
     app.add_plugins(viewport_bound::plugin);
     app.add_systems(Startup, setup_camera);
+    app.insert_resource(ClearColor(Color::srgb(0., 0., 0.)));
 
     // Development plugins, systems, et cetera.
     #[cfg(feature = "dev")]
