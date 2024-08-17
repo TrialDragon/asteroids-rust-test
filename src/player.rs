@@ -33,6 +33,8 @@ pub fn plugin(app: &mut App) {
 struct PlayerAssets {
     #[asset(key = "image.player_sprite")]
     sprite: Handle<Image>,
+    #[asset(key = "image.engine_exhaust")]
+    engine_exhaust: Handle<Image>
 }
 
 #[derive(Component, Reflect)]

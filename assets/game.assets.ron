@@ -2,6 +2,9 @@
     "image.player_sprite": File (
         path: "images/player.png",
     ),
+    "image.engine_exhaust": File (
+        path: "images/engine_exhaust.png",
+    ),
     "image.projectile_sprite": File (
         path: "images/projectile.png",
     ),
