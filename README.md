@@ -20,4 +20,4 @@ To build the release, do:
 > For building, you must also have the assets in an `assets` folder
 > of the same directory as the executable.
 > Easiest to just do something like:
-> `cp -r assets/ <executables_directory>`
+> `cp -r assets/ <executables_directory>/assets`
