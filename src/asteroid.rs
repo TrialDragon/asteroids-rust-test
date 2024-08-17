@@ -1,5 +1,5 @@
 use avian2d::{math::PI, prelude::*};
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 use bevy_asset_loader::prelude::*;
 use bevy_transform_interpolation::*;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
@@ -13,6 +13,9 @@ pub fn plugin(app: &mut App) {
         LoadingStateConfig::new(GameState::Loading).load_collection::<AsteroidAssets>(),
     );
     app.insert_resource(AsteroidID(0));
+    app.init_resource::<SmallAsteroidMap>();
+    app.register_type::<SmallAsteroidMap>();
+    app.register_type::<AsteroidID>();
     app.observe(spawn_asteroid);
     app.observe(spawn_asteroids);
     app.add_systems(
@@ -35,8 +38,37 @@ struct AsteroidAssets {
     small_advanced_asteroid: Handle<Image>,
 }
 
-#[derive(Resource)]
+#[derive(Resource, Reflect, Default)]
+#[reflect(Resource)]
 struct AsteroidID(pub usize);
+
+impl AsteroidID {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn get(&mut self) -> usize {
+        let value = self.0;
+        // Increment the ID so that the next spawned
+        // asteroid has its own unique ID.
+        //
+        // We use a wrapping (overflowing) add
+        // because on the unlikely off chance that
+        // the ID's get that far we can presume it's
+        // safe to go back to the start.
+        // If an asteroid of ID 0, or some other low number,
+        // still exists at that point, then something
+        // has gone terribly wrong with de-spawning
+        // or the user's PC is on fire from simply
+        // spawning too many entities at once.
+        self.0 = self.0.wrapping_add(1);
+        value
+    }
+}
+
+#[derive(Resource, Default, Reflect)]
+#[reflect(Resource)]
+struct SmallAsteroidMap(HashMap<usize, u16>);
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
@@ -107,13 +139,6 @@ impl AsteroidKind {
             AsteroidKind::Advanced | AsteroidKind::SmallAdvanced => AsteroidKind::SmallAdvanced,
         }
     }
-
-    fn get_bigger(&self) -> Self {
-        match self {
-            AsteroidKind::Basic | AsteroidKind::SmallBasic => AsteroidKind::Basic,
-            AsteroidKind::Advanced | AsteroidKind::SmallAdvanced => AsteroidKind::Advanced,
-        }
-    }
 }
 
 #[derive(Event, Debug)]
@@ -121,14 +146,16 @@ pub struct SpawnAsteroid {
     kind: AsteroidKind,
     transform: Transform,
     direction: Vec3,
+    id: usize,
 }
 
 impl SpawnAsteroid {
-    fn new(kind: AsteroidKind, transform: Transform, direction: Vec3) -> Self {
+    fn new(kind: AsteroidKind, transform: Transform, direction: Vec3, id: usize) -> Self {
         Self {
             kind,
             transform,
             direction,
+            id,
         }
     }
 }
@@ -137,7 +164,6 @@ fn spawn_asteroid(
     trigger: Trigger<SpawnAsteroid>,
     mut commands: Commands,
     assets: Res<AsteroidAssets>,
-    mut asteroid_id: ResMut<AsteroidID>,
 ) {
     let event = trigger.event();
 
@@ -146,7 +172,7 @@ fn spawn_asteroid(
         event.kind,
         StateScoped(GameState::Playing),
         Asteroid {
-            id: asteroid_id.0,
+            id: event.id,
             direction: event.direction,
         },
         DestroyOutOfBounds,
@@ -168,19 +194,6 @@ fn spawn_asteroid(
         AngularAcceleration(1.0),
     ));
 
-    // Increment the ID so that the next spawned
-    // asteroid has its own unique ID.
-    //
-    // We use a wrapping (overflowing) add
-    // because on the unlikely off chance that
-    // the ID's get that far we can presume it's
-    // safe to go back to the start.
-    // If an asteroid of ID 0, or some other low number,
-    // still exists at that point, then something
-    // has gone terribly wrong with de-spawning
-    // or the user's PC is on fire from simply
-    // spawning too many entities at once.
-    asteroid_id.0 = asteroid_id.0.wrapping_add(1);
 }
 
 fn move_asteroids(
@@ -321,6 +334,7 @@ fn spawn_asteroids(
     trigger: Trigger<SpawnAsteroids>,
     query: Query<(&AsteroidSpawner, &Transform)>,
     mut commands: Commands,
+    mut asteroid_id: ResMut<AsteroidID>,
 ) {
     let mut spawned_asteroids: Vec<Vec3> = vec![];
     let mut rng = rand::thread_rng();
@@ -336,6 +350,7 @@ fn spawn_asteroids(
             AsteroidKind::Basic,
             *transform,
             spawner.normal_direction,
+            asteroid_id.get()
         ));
 
         spawned_asteroids.push(transform.translation);
@@ -350,6 +365,7 @@ fn destroyed_asteroids(
     mut event_reader: EventReader<Destroyed>,
     asteroid_query: Query<(&Health, &Points, &AsteroidKind, &Transform, &Asteroid)>,
     mut score: ResMut<Score>,
+    mut small_asteroid_map: ResMut<SmallAsteroidMap>,
     mut commands: Commands,
 ) {
     for Destroyed(entity) in event_reader.read() {
@@ -372,14 +388,22 @@ fn destroyed_asteroids(
                             kind.get_smaller(),
                             new_transform,
                             new_direction,
+                            asteroid.id,
                         ));
                     }
-                } else {
-                    todo!()
                 }
             } else if !kind.is_smaller() {
                 commands.trigger(SpawnAsteroids::new(1));
             }
+
+            if kind.is_smaller() {
+                let value = small_asteroid_map.0.entry(asteroid.id).or_insert(0);
+                *value += 1;
+                if *value >= 3 {
+                    commands.trigger(SpawnAsteroids::new(1));
+                    small_asteroid_map.0.remove(&asteroid.id);
+                }
+            }            
 
             commands.entity(*entity).despawn_recursive();
         }
