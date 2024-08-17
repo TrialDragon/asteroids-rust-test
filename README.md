@@ -16,3 +16,8 @@ To run the release, do:
 
 To build the release, do:
 `cargo build --no-default-features --release`
+> [!NOTE]
+> For building, you must also have the assets in an `assets` folder
+> of the same directory as the executable.
+> Easiest to just do something like:
+> `cp -r assets/ <executables_directory>`
