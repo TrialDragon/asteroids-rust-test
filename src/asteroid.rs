@@ -346,8 +346,9 @@ fn spawn_asteroids(
             continue;
         }
 
+        let spawn_basic: bool = rng.gen();
         commands.trigger(SpawnAsteroid::new(
-            AsteroidKind::Basic,
+            if spawn_basic {AsteroidKind::Basic} else {AsteroidKind::Advanced},
             *transform,
             spawner.normal_direction,
             asteroid_id.get()
