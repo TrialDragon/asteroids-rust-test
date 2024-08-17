@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_transform_interpolation::*;
 
-use crate::{destruction::Destroyed, stats::LinearAcceleration, GameState};
+use crate::{destruction::Destroyed, stats::LinearAcceleration, viewport_bound::DestroyOutOfBounds, GameState};
 
 pub fn plugin(app: &mut App) {
     app.configure_loading_state(
@@ -54,6 +54,7 @@ fn spawn_projectile(
         Name::new("Projectile"),
         Projectile,
         StateScoped(GameState::Playing),
+        DestroyOutOfBounds,
         RigidBody::Kinematic,
         Collider::circle(4.),
         DebugRender::default(),
