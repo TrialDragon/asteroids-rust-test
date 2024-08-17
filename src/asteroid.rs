@@ -5,7 +5,7 @@ use bevy_transform_interpolation::*;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 use crate::{
-    destruction::Destroyed, projectile::{Shootable, Shot}, score::Score, stats::{AngularAcceleration, Health, LinearAcceleration, Points}, viewport_bound::DestroyOutOfBounds, GameState
+    destruction::Destroyed, projectile::{Shootable, Shot}, score::Score, stats::{AngularAcceleration, Health, LinearAcceleration, Points}, viewport_bound::DestroyOutOfBounds, GameState, BOTTOM_VIEWPORT_EDGE, LEFT_VIEWPORT_EDGE, RIGHT_VIEWPORT_EDGE, TOP_VIEWPORT_EDGE
 };
 
 pub fn plugin(app: &mut App) {
@@ -279,26 +279,26 @@ impl AsteroidSpawnerBundle {
 fn setup_asteroid_spawners(mut commands: Commands) {
     const OFFSET: f32 = 40.;
 
-    const RIGHT_VIEWPORT_EDGE: f32 = 640. + OFFSET;
-    const LEFT_VIEWPORT_EDGE: f32 = -640. - OFFSET;
-    const TOP_VIEWPORT_EDGE: f32 = 360. + OFFSET;
-    const BOTTOM_VIEWPORT_EDGE: f32 = -360. - OFFSET;
+    const OFFSET_RIGHT_VIEWPORT_EDGE: f32 = RIGHT_VIEWPORT_EDGE + OFFSET;
+    const OFFSET_LEFT_VIEWPORT_EDGE: f32 = LEFT_VIEWPORT_EDGE - OFFSET;
+    const OFFSET_TOP_VIEWPORT_EDGE: f32 = TOP_VIEWPORT_EDGE + OFFSET;
+    const OFFSET_BOTTOM_VIEWPORT_EDGE: f32 = BOTTOM_VIEWPORT_EDGE - OFFSET;
 
     let spawner_points: Vec<Vec3> = vec![
         // Corners.
-        Vec3::new(RIGHT_VIEWPORT_EDGE, TOP_VIEWPORT_EDGE, 0.0),
-        Vec3::new(RIGHT_VIEWPORT_EDGE, BOTTOM_VIEWPORT_EDGE, 0.0),
-        Vec3::new(LEFT_VIEWPORT_EDGE, TOP_VIEWPORT_EDGE, 0.0),
-        Vec3::new(LEFT_VIEWPORT_EDGE, BOTTOM_VIEWPORT_EDGE, 0.0),
+        Vec3::new(OFFSET_RIGHT_VIEWPORT_EDGE, OFFSET_TOP_VIEWPORT_EDGE, 0.0),
+        Vec3::new(OFFSET_RIGHT_VIEWPORT_EDGE, OFFSET_BOTTOM_VIEWPORT_EDGE, 0.0),
+        Vec3::new(OFFSET_LEFT_VIEWPORT_EDGE, OFFSET_TOP_VIEWPORT_EDGE, 0.0),
+        Vec3::new(OFFSET_LEFT_VIEWPORT_EDGE, OFFSET_BOTTOM_VIEWPORT_EDGE, 0.0),
         // Left and right edges.
-        Vec3::new(LEFT_VIEWPORT_EDGE, 0.0, 0.0),
-        Vec3::new(RIGHT_VIEWPORT_EDGE, 0.0, 0.0),
+        Vec3::new(OFFSET_LEFT_VIEWPORT_EDGE, 0.0, 0.0),
+        Vec3::new(OFFSET_RIGHT_VIEWPORT_EDGE, 0.0, 0.0),
         // Top edge.
-        Vec3::new(LEFT_VIEWPORT_EDGE / 2., TOP_VIEWPORT_EDGE, 0.0),
-        Vec3::new(RIGHT_VIEWPORT_EDGE / 2., TOP_VIEWPORT_EDGE, 0.0),
+        Vec3::new(OFFSET_LEFT_VIEWPORT_EDGE / 2., OFFSET_TOP_VIEWPORT_EDGE, 0.0),
+        Vec3::new(OFFSET_RIGHT_VIEWPORT_EDGE / 2., OFFSET_TOP_VIEWPORT_EDGE, 0.0),
         // Bottom edge.
-        Vec3::new(LEFT_VIEWPORT_EDGE / 2., BOTTOM_VIEWPORT_EDGE, 0.0),
-        Vec3::new(RIGHT_VIEWPORT_EDGE / 2., BOTTOM_VIEWPORT_EDGE, 0.0),
+        Vec3::new(OFFSET_LEFT_VIEWPORT_EDGE / 2., OFFSET_BOTTOM_VIEWPORT_EDGE, 0.0),
+        Vec3::new(OFFSET_RIGHT_VIEWPORT_EDGE / 2., OFFSET_BOTTOM_VIEWPORT_EDGE, 0.0),
     ];
 
     for spawner_point in spawner_points {

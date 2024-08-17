@@ -6,7 +6,7 @@ use bevy_transform_interpolation::*;
 use leafwing_input_manager::prelude::*;
 
 use game_library::{
-    asteroid, destruction, game_over, player, projectile, score, stats, viewport_bound, Action, GameState,
+    asteroid, destruction, game_over, player, projectile, score, stats, viewport_bound, Action, GameState, VIEWPORT_HEIGHT, VIEWPORT_WIDTH
 };
 
 fn main() {
@@ -46,8 +46,8 @@ fn main() {
 fn setup_camera(mut commands: Commands) {
     let mut camera_bundle = Camera2dBundle::default();
     camera_bundle.projection.scaling_mode = ScalingMode::Fixed {
-        width: 1280.,
-        height: 720.,
+        width: VIEWPORT_WIDTH,
+        height: VIEWPORT_HEIGHT,
     };
     commands.spawn((Name::new("Camera"), camera_bundle, IsDefaultUiCamera));
 }

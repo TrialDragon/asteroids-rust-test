@@ -1,7 +1,7 @@
 use avian2d::prelude::*;
 use bevy::prelude::*;
 
-use crate::{destruction::Destroyed, GameState};
+use crate::{destruction::Destroyed, GameState, BOTTOM_VIEWPORT_EDGE, LEFT_VIEWPORT_EDGE, RIGHT_VIEWPORT_EDGE, TOP_VIEWPORT_EDGE, VIEWPORT_HEIGHT, VIEWPORT_WIDTH};
 
 pub fn plugin(app: &mut App) {
     // TODO: This could probably be polished
@@ -29,9 +29,7 @@ fn setup_viewport_collider(mut commands: Commands) {
         Name::new("ViewportCollider"),
         ViewportCollider,
         StateScoped(GameState::Playing),
-        // TODO: refactor the size out
-        // into a `lib.rs` constant.
-        Collider::rectangle(1280., 720.),
+        Collider::rectangle(VIEWPORT_WIDTH, VIEWPORT_HEIGHT),
     ));
 }
 
@@ -47,17 +45,16 @@ fn movement_wrapping(
             {
                 let mut transform = wrap_movement_query.get_mut(*first_entity).unwrap();
                 let position = transform.translation;
-                // TODO: Viewport size constant refactor.
-                if position.x > 640. {
-                    transform.translation.x = -639.;
-                } else if position.x < -640. {
-                    transform.translation.x = 639.;
+                if position.x > RIGHT_VIEWPORT_EDGE {
+                    transform.translation.x = LEFT_VIEWPORT_EDGE + 1.;
+                } else if position.x < LEFT_VIEWPORT_EDGE {
+                    transform.translation.x = RIGHT_VIEWPORT_EDGE - 1.;
                 }
 
-                if position.y > 360. {
-                    transform.translation.y = -359.;
-                } else if position.y < -360. {
-                    transform.translation.y = 359.;
+                if position.y > TOP_VIEWPORT_EDGE {
+                    transform.translation.y = BOTTOM_VIEWPORT_EDGE + 1.;
+                } else if position.y < BOTTOM_VIEWPORT_EDGE {
+                    transform.translation.y = TOP_VIEWPORT_EDGE + 1.;
                 }
             }
         };
@@ -82,11 +79,10 @@ fn out_of_bounds_destruction(
                     .get_mut(*first_entity)
                     .unwrap()
                     .translation;
-                // TODO: Viewport size constant refactor.
-                let out_of_bounds = position.x > 640.
-                    || position.x < -640.
-                    || position.y > 360.
-                    || position.y < -360.;
+                let out_of_bounds = position.x > RIGHT_VIEWPORT_EDGE
+                    || position.x < LEFT_VIEWPORT_EDGE
+                    || position.y > TOP_VIEWPORT_EDGE
+                    || position.y < BOTTOM_VIEWPORT_EDGE;
                 if out_of_bounds {
                     destroyed_event_writer.send(Destroyed(*first_entity));
                 }
