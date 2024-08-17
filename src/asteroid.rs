@@ -5,11 +5,7 @@ use bevy_transform_interpolation::*;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 use crate::{
-    destruction::Destroyed,
-    projectile::{Shootable, Shot},
-    stats::{AngularAcceleration, Health, LinearAcceleration, Points},
-    viewport_bound::DestroyOutOfBounds,
-    GameState,
+    destruction::Destroyed, projectile::{Shootable, Shot}, score::Score, stats::{AngularAcceleration, Health, LinearAcceleration, Points}, viewport_bound::DestroyOutOfBounds, GameState
 };
 
 pub fn plugin(app: &mut App) {
@@ -49,7 +45,8 @@ struct Asteroid {
     direction: Vec3,
 }
 
-#[derive(Debug)]
+#[derive(Component, Reflect, Debug, Clone, Copy)]
+#[reflect(Component)]
 enum AsteroidKind {
     Basic,
     SmallBasic,
@@ -96,20 +93,41 @@ impl AsteroidKind {
             AsteroidKind::SmallBasic | AsteroidKind::SmallAdvanced => 14.,
         }
     }
+
+    fn is_smaller(&self) -> bool {
+        match self {
+            AsteroidKind::Basic | AsteroidKind::Advanced => false,
+            AsteroidKind::SmallBasic | AsteroidKind::SmallAdvanced => true,
+        }
+    }
+
+    fn get_smaller(&self) -> Self {
+        match self {
+            AsteroidKind::Basic | AsteroidKind::SmallBasic => AsteroidKind::SmallBasic,
+            AsteroidKind::Advanced | AsteroidKind::SmallAdvanced => AsteroidKind::SmallAdvanced,
+        }
+    }
+
+    fn get_bigger(&self) -> Self {
+        match self {
+            AsteroidKind::Basic | AsteroidKind::SmallBasic => AsteroidKind::Basic,
+            AsteroidKind::Advanced | AsteroidKind::SmallAdvanced => AsteroidKind::Advanced,
+        }
+    }
 }
 
 #[derive(Event, Debug)]
 pub struct SpawnAsteroid {
     kind: AsteroidKind,
-    position: Vec3,
+    transform: Transform,
     direction: Vec3,
 }
 
 impl SpawnAsteroid {
-    fn new(kind: AsteroidKind, position: Vec3, direction: Vec3) -> Self {
+    fn new(kind: AsteroidKind, transform: Transform, direction: Vec3) -> Self {
         Self {
             kind,
-            position,
+            transform,
             direction,
         }
     }
@@ -125,6 +143,7 @@ fn spawn_asteroid(
 
     commands.spawn((
         Name::new(event.kind.get_name()),
+        event.kind,
         StateScoped(GameState::Playing),
         Asteroid {
             id: asteroid_id.0,
@@ -135,7 +154,7 @@ fn spawn_asteroid(
         Health::new(event.kind.get_health()),
         Points(event.kind.get_points()),
         SpriteBundle {
-            transform: Transform::from_translation(event.position),
+            transform: event.transform,
             texture: event.kind.get_texture(assets),
             ..default()
         },
@@ -315,7 +334,7 @@ fn spawn_asteroids(
 
         commands.trigger(SpawnAsteroid::new(
             AsteroidKind::Basic,
-            transform.translation,
+            *transform,
             spawner.normal_direction,
         ));
 
@@ -329,25 +348,56 @@ fn initial_spawn_asteroids(mut commands: Commands) {
 
 fn destroyed_asteroids(
     mut event_reader: EventReader<Destroyed>,
-    asteroid_query: Query<(), With<Asteroid>>,
+    asteroid_query: Query<(&Health, &Points, &AsteroidKind, &Transform, &Asteroid)>,
+    mut score: ResMut<Score>,
     mut commands: Commands,
 ) {
-    for entity in event_reader.read() {
-        if asteroid_query.contains(entity.0) {
-            commands.entity(entity.0).despawn_recursive();
-            commands.trigger(SpawnAsteroids::new(1));
+    for Destroyed(entity) in event_reader.read() {
+        if asteroid_query.contains(*entity) {
+            let (health, points, kind, transform, asteroid) = asteroid_query.get(*entity).unwrap();
+            if health.current() == 0 {
+                score.current += points.0;
+                if !kind.is_smaller() {
+                    for n in -1..=1 {
+                        const OFFSET: f32 = 40.;
+
+                        let mut new_direction = Transform::from_translation(asteroid.direction);
+                        new_direction.rotate_z(n as f32 * (PI / 8.));
+                        let new_direction = new_direction.rotation.mul_vec3(new_direction.translation).normalize_or_zero();
+
+                        let mut new_transform = *transform;
+                        new_transform.translation += new_direction * OFFSET;
+                        
+                        commands.trigger(SpawnAsteroid::new(
+                            kind.get_smaller(),
+                            new_transform,
+                            new_direction,
+                        ));
+                    }
+                } else {
+                    todo!()
+                }
+            } else if !kind.is_smaller() {
+                commands.trigger(SpawnAsteroids::new(1));
+            }
+
+            commands.entity(*entity).despawn_recursive();
         }
     }
 }
 
 fn shot_asteroids(
     mut shot_event_reader: EventReader<Shot>,
+    mut destroyed_event_writer: EventWriter<Destroyed>,
     mut asteroid_query: Query<&mut Health, With<Asteroid>>,
 ) {
     for Shot(entity) in shot_event_reader.read() {
         if asteroid_query.contains(*entity) {
             let mut health = asteroid_query.get_mut(*entity).unwrap();
             health.sub(1);
+            if health.current() == 0 {
+                destroyed_event_writer.send(Destroyed(*entity));
+            }
         }
     }
 }

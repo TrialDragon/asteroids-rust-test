@@ -2,10 +2,7 @@ use std::cmp;
 
 use bevy::prelude::*;
 
-use crate::{destruction::Destroyed, score::Score};
-
 pub fn plugin(app: &mut App) {
-    app.add_systems(Update, zero_health);
     app.register_type::<LinearAcceleration>();
     app.register_type::<AngularAcceleration>();
     app.register_type::<Health>();
@@ -49,16 +46,3 @@ impl Health {
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct Points(pub u32);
-
-fn zero_health(
-    mut destroyed_event_writer: EventWriter<Destroyed>,
-    query: Query<(Entity, &Health, &Points), Changed<Health>>,
-    mut score: ResMut<Score>,
-) {
-    for (entity, health, points) in &query {
-        if health.current() == 0 {
-            score.current += points.0;
-            destroyed_event_writer.send(Destroyed(entity));
-        }
-    }
-}
