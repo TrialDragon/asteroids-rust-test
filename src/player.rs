@@ -5,10 +5,7 @@ use bevy_transform_interpolation::{RotationInterpolation, TranslationInterpolati
 use leafwing_input_manager::prelude::*;
 
 use crate::{
-    projectile::SpawnProjectile,
-    stats::{AngularAcceleration, Health, LinearAcceleration},
-    viewport_bound::WrapMovement,
-    Action, GameState,
+    asteroid::Asteroid, destruction::Destroyed, projectile::SpawnProjectile, stats::{AngularAcceleration, Health, LinearAcceleration}, viewport_bound::WrapMovement, Action, GameState
 };
 
 pub fn plugin(app: &mut App) {
@@ -17,7 +14,7 @@ pub fn plugin(app: &mut App) {
     );
     app.add_systems(OnEnter(GameState::Playing), spawn_player);
     app.add_systems(FixedUpdate, move_player);
-    app.add_systems(Update, player_shoot);
+    app.add_systems(Update, (player_shoot, (player_destruction, collision_with_asteroid).chain()));
 }
 
 #[derive(AssetCollection, Resource)]
@@ -143,5 +140,39 @@ fn player_shoot(
                 transform.rotation,
             ))
         }
+    }
+}
+
+fn player_destruction(
+    mut destroyed_event_reader: EventReader<Destroyed>,
+    query: Query<(), With<Player>>,
+    mut commands: Commands,
+) {
+    for Destroyed(entity) in destroyed_event_reader.read() {
+        if query.contains(*entity) {
+            commands.entity(*entity).despawn_recursive();
+        }
+    }
+}
+
+fn collision_with_asteroid(
+    mut collision_event_reader: EventReader<CollisionStarted>,
+    mut destroyed_event_writer: EventWriter<Destroyed>,
+    mut player_query: Query<&mut Health, With<Player>>,
+    asteroid_query: Query<(), With<Asteroid>>,
+) {
+    for CollisionStarted(entity1, entity2) in collision_event_reader.read() {
+        let mut logic = |first_entity: &Entity, second_entity: &Entity| {
+            if player_query.contains(*first_entity) && asteroid_query.contains(*second_entity) {
+                let mut health = player_query.get_mut(*first_entity).unwrap();
+                health.sub(1);
+                if health.current() == 0 {
+                    destroyed_event_writer.send(Destroyed(*first_entity));
+                }
+            }
+        };
+
+        logic(entity1, entity2);
+        logic(entity2, entity1);
     }
 }

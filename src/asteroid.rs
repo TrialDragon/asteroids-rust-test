@@ -72,7 +72,7 @@ struct SmallAsteroidMap(HashMap<usize, u16>);
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-struct Asteroid {
+pub struct Asteroid {
     id: usize,
     direction: Vec3,
 }
