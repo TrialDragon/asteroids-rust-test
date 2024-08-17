@@ -20,4 +20,7 @@
     "image.small_advanced_asteroid": File (
         path: "images/small_advanced_asteroid.png",
     ),
+    "image.health_pickup": File (
+        path: "images/health_pickup.png",
+    ),
 })

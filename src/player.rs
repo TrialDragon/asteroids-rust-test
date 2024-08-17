@@ -35,12 +35,12 @@ struct PlayerAssets {
     #[asset(key = "image.player_sprite")]
     sprite: Handle<Image>,
     #[asset(key = "image.engine_exhaust")]
-    engine_exhaust: Handle<Image>
+    engine_exhaust: Handle<Image>,
 }
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-struct Player;
+pub struct Player;
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
@@ -56,28 +56,30 @@ fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
         .with(Action::Move, KeyCode::KeyW)
         .with(Action::Move, KeyCode::ArrowUp);
 
-    commands.spawn((
-        Name::new("Player"),
-        StateScoped(GameState::Playing),
-        Player,
-        Health::new(3),
-        RigidBody::Kinematic,
-        Collider::triangle(
-            Vec2::new(-30.0, -28.0),
-            Vec2::new(30.0, -28.0),
-            Vec2::new(0.0, 30.0),
-        ),
-        TranslationInterpolation,
-        RotationInterpolation,
-        WrapMovement,
-        LinearAcceleration(150.),
-        AngularAcceleration(2.),
-        SpriteBundle {
-            texture: assets.sprite.clone(),
-            ..default()
-        },
-        InputManagerBundle::with_map(input_map),
-    )).with_children(|children| {
+    commands
+        .spawn((
+            Name::new("Player"),
+            StateScoped(GameState::Playing),
+            Player,
+            Health::new(3),
+            RigidBody::Kinematic,
+            Collider::triangle(
+                Vec2::new(-30.0, -28.0),
+                Vec2::new(30.0, -28.0),
+                Vec2::new(0.0, 30.0),
+            ),
+            TranslationInterpolation,
+            RotationInterpolation,
+            WrapMovement,
+            LinearAcceleration(150.),
+            AngularAcceleration(2.),
+            SpriteBundle {
+                texture: assets.sprite.clone(),
+                ..default()
+            },
+            InputManagerBundle::with_map(input_map),
+        ))
+        .with_children(|children| {
             children.spawn((
                 Name::new("EngineExhaust"),
                 EngineExhaust,
@@ -85,7 +87,7 @@ fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
                     transform: Transform::from_xyz(0.0, -ENGINE_EXHAUST_OFFSET, -1.0),
                     texture: assets.engine_exhaust.clone(),
                     ..default()
-                }
+                },
             ));
         });
 }

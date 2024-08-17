@@ -6,8 +6,8 @@ use bevy_transform_interpolation::*;
 use leafwing_input_manager::prelude::*;
 
 use game_library::{
-    asteroid, destruction, game_over, player, projectile, score, stats, viewport_bound, Action,
-    GameState, VIEWPORT_HEIGHT, VIEWPORT_WIDTH,
+    asteroid, destruction, game_over, health_pickup, player, projectile, score, stats,
+    viewport_bound, Action, GameState, VIEWPORT_HEIGHT, VIEWPORT_WIDTH,
 };
 
 fn main() {
@@ -26,6 +26,7 @@ fn main() {
     app.add_plugins(asteroid::plugin);
     app.add_plugins(destruction::plugin);
     app.add_plugins(game_over::plugin);
+    app.add_plugins(health_pickup::plugin);
     app.add_plugins(player::plugin);
     app.add_plugins(projectile::plugin);
     app.add_plugins(score::plugin);

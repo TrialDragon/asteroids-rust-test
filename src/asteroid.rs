@@ -6,6 +6,7 @@ use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 use crate::{
     destruction::Destroyed,
+    health_pickup::SpawnHealthPickup,
     projectile::{Shootable, Shot},
     score::Score,
     stats::{AngularAcceleration, Health, LinearAcceleration, Points},
@@ -392,12 +393,17 @@ fn destroyed_asteroids(
     mut small_asteroid_map: ResMut<SmallAsteroidMap>,
     mut commands: Commands,
 ) {
+    let mut rng = thread_rng();
     for Destroyed(entity) in event_reader.read() {
         if asteroid_query.contains(*entity) {
             let (health, points, kind, transform, asteroid) = asteroid_query.get(*entity).unwrap();
             if health.current() == 0 {
                 score.current += points.0;
-                if !kind.is_smaller() {
+                let spawn_health: bool = rng.gen();
+
+                if kind.is_smaller() && spawn_health {
+                    commands.trigger(SpawnHealthPickup::new(transform.translation));
+                } else if !kind.is_smaller() {
                     for n in -1..=1 {
                         const OFFSET: f32 = 40.;
 
