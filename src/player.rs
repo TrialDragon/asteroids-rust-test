@@ -1,5 +1,5 @@
 use avian2d::prelude::*;
-use bevy::prelude::*;
+use bevy::{color::palettes::css::GREEN, prelude::*};
 use bevy_asset_loader::prelude::*;
 use bevy_transform_interpolation::{RotationInterpolation, TranslationInterpolation};
 use leafwing_input_manager::prelude::*;
@@ -22,6 +22,7 @@ pub fn plugin(app: &mut App) {
     app.add_systems(
         Update,
         (
+            visualize_player_health,
             player_shoot,
             (player_destruction, collision_with_asteroid).chain(),
         ),
@@ -187,5 +188,46 @@ fn collision_with_asteroid(
 
         logic(entity1, entity2);
         logic(entity2, entity1);
+    }
+}
+
+/// Use gizmos to render a rectangle that
+/// represent the player's health.
+///
+/// It takes the current health (0–3; inclusive)
+/// and renders a rectangle with it's base height
+/// multiplied by the health so that its length
+/// is relative to the health and represents it.
+///
+/// This should probably not use gizmos for production
+/// code, but this is the simplest way to get a health
+/// widget rendering for the MVP.
+///
+/// TODO: look into switching to a better
+/// health widget rendering method?
+fn visualize_player_health(
+    mut gizmos: Gizmos,
+    player_query: Query<(&Health, &Transform), With<Player>>,
+) {
+    const POSITION_OFFSET: f32 = 80.;
+    const GAP_OFFSET: f32 = 4.;
+    const HEALTH_SEGMENT_HEIGHT: f32 = 24.;
+    const HEALTH_SEGMENT_WIDTH: f32 = 16.;
+
+    for (health, transform) in &player_query {
+        for n in 0..health.current() {
+            let gizmo_position = Vec2::new(
+                transform.translation.x - POSITION_OFFSET,
+                transform.translation.y + (HEALTH_SEGMENT_HEIGHT + GAP_OFFSET) * n as f32,
+            );
+
+            // TODO: Make the health rotate with player?
+            gizmos.rect_2d(
+                gizmo_position,
+                0.,
+                Vec2::new(HEALTH_SEGMENT_WIDTH, HEALTH_SEGMENT_HEIGHT),
+                GREEN,
+            );
+        }
     }
 }
