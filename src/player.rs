@@ -22,6 +22,7 @@ pub fn plugin(app: &mut App) {
     app.add_systems(
         Update,
         (
+            engine_exhaust_visibility,
             visualize_player_health,
             player_shoot,
             (player_destruction, collision_with_asteroid).chain(),
@@ -41,7 +42,13 @@ struct PlayerAssets {
 #[reflect(Component)]
 struct Player;
 
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+struct EngineExhaust;
+
 fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
+    const ENGINE_EXHAUST_OFFSET: f32 = 48.;
+
     let input_map = InputMap::default()
         .with_axis(Action::Rotate, KeyboardVirtualAxis::AD)
         .with_axis(Action::Rotate, KeyboardVirtualAxis::HORIZONTAL_ARROW_KEYS)
@@ -70,7 +77,17 @@ fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
             ..default()
         },
         InputManagerBundle::with_map(input_map),
-    ));
+    )).with_children(|children| {
+            children.spawn((
+                Name::new("EngineExhaust"),
+                EngineExhaust,
+                SpriteBundle {
+                    transform: Transform::from_xyz(0.0, -ENGINE_EXHAUST_OFFSET, -1.0),
+                    texture: assets.engine_exhaust.clone(),
+                    ..default()
+                }
+            ));
+        });
 }
 
 // Need to allow this, otherwise trying to
@@ -231,5 +248,22 @@ fn visualize_player_health(
                 GREEN,
             );
         }
+    }
+}
+
+fn engine_exhaust_visibility(
+    mut engine_exhaust_query: Query<(&mut Visibility, &Parent), With<EngineExhaust>>,
+    player_query: Query<&ActionState<Action>, With<Player>>,
+) {
+    for (mut visibility, parent) in &mut engine_exhaust_query {
+        let Ok(action_state) = player_query.get(parent.get()) else {
+            return;
+        };
+
+        *visibility = if action_state.pressed(&Action::Move) {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
     }
 }
