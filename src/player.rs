@@ -69,8 +69,8 @@ fn spawn_player(_: Trigger<SpawnPlayer>, mut commands: Commands, assets: Res<Pla
             TranslationInterpolation,
             RotationInterpolation,
             WrapMovement,
-            LinearAcceleration(150.),
-            AngularAcceleration(2.),
+            LinearAcceleration(250.),
+            AngularAcceleration(2.5),
             SpriteBundle {
                 texture: assets.sprite.clone(),
                 ..default()
@@ -108,8 +108,9 @@ fn move_player(
     >,
     time: Res<Time<Fixed>>,
 ) {
-    const MAX_LINEAR_SPEED: f32 = 300.0;
+    const MAX_LINEAR_SPEED: f32 = 400.0;
     const MAX_ANGULAR_SPEED: f32 = 3.;
+    const DECELERATION_MODIFER: f32 = 1.25;
 
     for (
         mut linear_velocity,
@@ -132,7 +133,7 @@ fn move_player(
         } else {
             linear_velocity.0 = linear_velocity
                 .0
-                .move_towards(Vec2::ZERO, linear_acceleration.0 * time.delta_seconds());
+                .move_towards(Vec2::ZERO, linear_acceleration.0 * DECELERATION_MODIFER * time.delta_seconds());
         }
 
         // The reason the opposite acceleration code
@@ -143,7 +144,7 @@ fn move_player(
         if rotation == 0.0 {
             angular_velocity.0 = angular_velocity
                 .0
-                .lerp(0.0, angular_acceleration.0 * time.delta_seconds());
+                .lerp(0.0, angular_acceleration.0 * DECELERATION_MODIFER * time.delta_seconds());
         }
 
         // It appears negative rotates right and positive left
