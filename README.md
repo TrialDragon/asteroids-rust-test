@@ -2,6 +2,12 @@
 
 A re-make / clone of the famous 1979 game Asteroids in the Bevy engine.
 
+## Screenshots
+
+![title screen](https://imgur.com/kbiPXSb)
+![play area](https://imgur.com/SfTQSzy)
+![game over](https://imgur.com/VWI7nst)
+
 ## Running
 
 To run the game with dev tools, just do:
