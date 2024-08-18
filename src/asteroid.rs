@@ -116,13 +116,6 @@ impl AsteroidKind {
         }
     }
 
-    fn get_points(&self) -> u32 {
-        match self {
-            AsteroidKind::Basic | AsteroidKind::SmallBasic => 1,
-            AsteroidKind::Advanced | AsteroidKind::SmallAdvanced => 5,
-        }
-    }
-
     fn get_collider_radius(&self) -> f32 {
         match self {
             AsteroidKind::Basic | AsteroidKind::Advanced => 28.,
@@ -182,7 +175,7 @@ fn spawn_asteroid(
         DestroyOutOfBounds,
         Shootable,
         Health::new(event.kind.get_health()),
-        Points(event.kind.get_points()),
+        Points(1),
         SpriteBundle {
             transform: event.transform,
             texture: event.kind.get_texture(assets),
