@@ -11,7 +11,13 @@ pub fn plugin(app: &mut App) {
     app.observe(spawn_health_pickup);
     app.add_systems(
         Update,
-        (health_pickup_collision, health_pickup_destroyed).chain(),
+        (
+            health_pickup_tick,
+            health_pickup_collision,
+            health_pickup_timeout,
+            health_pickup_destroyed,
+        )
+            .chain(),
     );
 }
 
@@ -21,14 +27,9 @@ struct HealthPickupAssets {
     health_pickup: Handle<Image>,
 }
 
-// TODO:
-// The health pickups should probably
-// despawn over time, both to avoid
-// performance issues, and for game
-// balance improvements.
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-struct HealthPickup;
+struct HealthPickup(Timer);
 
 #[derive(Event, Debug)]
 pub struct SpawnHealthPickup {
@@ -46,11 +47,12 @@ fn spawn_health_pickup(
     mut commands: Commands,
     assets: Res<HealthPickupAssets>,
 ) {
+    const HEALTH_PICKUP_SECS: f32 = 20.;
     let event = trigger.event();
 
     commands.spawn((
         Name::new("HealthPickup"),
-        HealthPickup,
+        HealthPickup(Timer::from_seconds(HEALTH_PICKUP_SECS, TimerMode::Once)),
         StateScoped(GameState::Playing),
         Collider::circle(20.),
         SpriteBundle {
@@ -63,6 +65,23 @@ fn spawn_health_pickup(
             ..default()
         },
     ));
+}
+
+fn health_pickup_tick(mut query: Query<&mut HealthPickup>, time: Res<Time>) {
+    for mut health_pickup in &mut query {
+        health_pickup.0.tick(time.delta());
+    }
+}
+
+fn health_pickup_timeout(
+    query: Query<(&HealthPickup, Entity)>,
+    mut destroyed_event_writer: EventWriter<Destroyed>,
+) {
+    for (health_pickup, entity) in &query {
+        if health_pickup.0.just_finished() {
+            destroyed_event_writer.send(Destroyed(entity));
+        }
+    }
 }
 
 fn health_pickup_collision(
