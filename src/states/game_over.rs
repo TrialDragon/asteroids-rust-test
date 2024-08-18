@@ -62,7 +62,9 @@ fn setup_game_over(mut commands: Commands, score: Res<Score>) {
                 row.spawn(TextBundle::from("Asteroids Hit:"));
 
                 row.spawn(TextBundle::from(score.0.to_string()));
-            });
+            })
+                .style()
+                .justify_content(JustifyContent::SpaceEvenly);
 
             // Button menu.
             column
