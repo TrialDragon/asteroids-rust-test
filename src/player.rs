@@ -33,6 +33,7 @@ struct PlayerAssets {
     engine_exhaust: Handle<Image>,
 }
 
+// TODO: Give the player invincibility frames.
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct Player;
