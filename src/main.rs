@@ -9,9 +9,18 @@ use game_library::{
 };
 use sickle_ui::SickleUiPlugin;
 
+
 fn main() {
+    let window_configuration = WindowPlugin {
+        primary_window: Some(Window {
+            title: "Asteroids Clone".to_string(),
+            ..default()
+        }),
+        ..default()
+    };
+
     let mut app = App::new();
-    app.add_plugins(DefaultPlugins);
+    app.add_plugins(DefaultPlugins.set(window_configuration));
     app.add_plugins(states::plugin);
     app.add_plugins(PhysicsPlugins::default());
     app.add_plugins(TransformInterpolationPlugin::default());
