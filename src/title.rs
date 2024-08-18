@@ -48,36 +48,36 @@ fn exit_button(
 
 fn setup_title(mut commands: Commands) {
     commands.ui_builder(UiRoot).column(|column| {
-            column.spawn(TextBundle::from("Asteroids")).style()
-                .margin(UiRect::top(Val::Vh(15.)));
-            column.column(|column| {
-                column.container((
-                    ButtonBundle::default(),
-                    PlayButton,
-                ), |button| {
-                    button.spawn(TextBundle::from("Play")).style()
-                        .font_color(BLACK.into());
-                }).style()
-                    .background_color(GRAY_50.into())
-                    .padding(UiRect::horizontal(Val::Px(20.)));
-                column.container((
-                    ButtonBundle::default(),
-                    ExitButton,
-                ), |button| {
-                    button.spawn(TextBundle::from("Exit")).style()
-                        .font_color(BLACK.into());
-                }).style()
-                    .background_color(GRAY_50.into())
-                    .padding(UiRect::horizontal(Val::Px(20.)));
+        column.spawn(TextBundle::from("Asteroids")).style()
+            .margin(UiRect::top(Val::Vh(15.)));
+
+        column.column(|column| {
+            column.container((
+                ButtonBundle::default(),
+                PlayButton,
+            ), |button| {
+                button.spawn(TextBundle::from("Play")).style()
+                    .font_color(BLACK.into());
             }).style()
-                .height(Val::Percent(10.))
-                .justify_content(JustifyContent::SpaceAround)
-                .margin(UiRect::bottom(Val::Vh(45.)));
+                .background_color(GRAY_50.into())
+                .padding(UiRect::horizontal(Val::Px(20.)));
+            column.container((
+                ButtonBundle::default(),
+                ExitButton,
+            ), |button| {
+                button.spawn(TextBundle::from("Exit")).style()
+                    .font_color(BLACK.into());
+            }).style()
+                .background_color(GRAY_50.into())
+                .padding(UiRect::horizontal(Val::Px(20.)));
+        }).style()
+            .height(Val::Percent(10.))
+            .justify_content(JustifyContent::SpaceAround)
+            .margin(UiRect::bottom(Val::Vh(45.)));
     }).style()
         .width(Val::Px(50.0))
         .justify_content(JustifyContent::SpaceBetween)
         .align_items(AlignItems::Center)
         .margin(UiRect::all(Val::Auto))
-        .entity_commands()
-        .insert(StateScoped(GameState::Title));
+        .entity_commands().insert(StateScoped(GameState::Title));
 }
