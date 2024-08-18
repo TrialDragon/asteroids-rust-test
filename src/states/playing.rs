@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    asteroid::{SetupAsteroidSpawners, SpawnAsteroids},
-    player::SpawnPlayer,
-    viewport_bound::SetupViewportCollider,
+    asteroid::{SetupAsteroidSpawners, SpawnAsteroids}, player::SpawnPlayer, stats::Score, viewport_bound::SetupViewportCollider
 };
 
 use super::GameState;
@@ -12,7 +10,7 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(GameState::Playing), setup_play_area);
 }
 
-fn setup_play_area(mut commands: Commands) {
+fn setup_play_area(mut commands: Commands, mut score: ResMut<Score>) {
     // setup viewport collider
     commands.trigger(SetupViewportCollider);
     // player
@@ -21,4 +19,6 @@ fn setup_play_area(mut commands: Commands) {
     commands.trigger(SetupAsteroidSpawners);
     // spawn initial asteroids
     commands.trigger(SpawnAsteroids::new(5));
+    // reset the score
+    score.0 = 0;
 }
