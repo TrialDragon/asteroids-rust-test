@@ -405,7 +405,7 @@ fn destroyed_asteroids(
                     commands.trigger(SpawnHealthPickup::new(transform.translation));
                 } else if !kind.is_smaller() {
                     for n in -1..=1 {
-                        const OFFSET: f32 = 40.;
+                        const SMALL_ASTEROID_OFFSET: f32 = 90.;
 
                         let mut new_direction = Transform::from_translation(asteroid.direction);
                         new_direction.rotate_z(n as f32 * (PI / 8.));
@@ -415,7 +415,7 @@ fn destroyed_asteroids(
                             .normalize_or_zero();
 
                         let mut new_transform = *transform;
-                        new_transform.translation += new_direction * OFFSET;
+                        new_transform.translation += new_direction * SMALL_ASTEROID_OFFSET;
 
                         commands.trigger(SpawnAsteroid::new(
                             kind.get_smaller(),
