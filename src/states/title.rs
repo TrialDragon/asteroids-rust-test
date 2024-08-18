@@ -4,11 +4,12 @@ use bevy::{
 };
 use sickle_ui::prelude::*;
 
-use crate::GameState;
+use super::GameState;
+
 
 // TODO: This all needs proper styling,
 // but no time for that at this point.
-pub fn plugin(app: &mut App) {
+pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(GameState::Title), setup_title);
     app.add_systems(
         Update,

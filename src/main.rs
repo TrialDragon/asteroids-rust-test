@@ -5,20 +5,18 @@ use bevy_transform_interpolation::*;
 use leafwing_input_manager::prelude::*;
 
 use game_library::{
-    asteroid, destruction, game_over, health_pickup, player, playing, projectile, stats, title,
-    viewport_bound, Action, GameState, VIEWPORT_HEIGHT, VIEWPORT_WIDTH,
+    asteroid, destruction, health_pickup, player, projectile, states::{self, GameState}, stats, viewport_bound, Action, VIEWPORT_HEIGHT, VIEWPORT_WIDTH
 };
 use sickle_ui::SickleUiPlugin;
 
 fn main() {
     let mut app = App::new();
     app.add_plugins(DefaultPlugins);
+    app.add_plugins(states::plugin);
     app.add_plugins(PhysicsPlugins::default());
     app.add_plugins(TransformInterpolationPlugin::default());
     app.add_plugins(InputManagerPlugin::<Action>::default());
     app.add_plugins(SickleUiPlugin);
-    app.init_state::<GameState>();
-    app.enable_state_scoped_entities::<GameState>();
     app.add_loading_state(
         LoadingState::new(GameState::Loading)
             .continue_to_state(GameState::Title)
@@ -26,13 +24,10 @@ fn main() {
     );
     app.add_plugins(asteroid::plugin);
     app.add_plugins(destruction::plugin);
-    app.add_plugins(game_over::plugin);
     app.add_plugins(health_pickup::plugin);
     app.add_plugins(player::plugin);
-    app.add_plugins(playing::plugin);
     app.add_plugins(projectile::plugin);
     app.add_plugins(stats::plugin);
-    app.add_plugins(title::plugin);
     app.add_plugins(viewport_bound::plugin);
     app.add_systems(Startup, setup_camera);
     app.insert_resource(ClearColor(Color::srgb(0., 0., 0.)));

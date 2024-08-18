@@ -3,13 +3,11 @@ use leafwing_input_manager::prelude::*;
 
 pub mod asteroid;
 pub mod destruction;
-pub mod game_over;
 pub mod health_pickup;
 pub mod player;
-pub mod playing;
 pub mod projectile;
 pub mod stats;
-pub mod title;
+pub mod states;
 pub mod viewport_bound;
 
 pub const VIEWPORT_WIDTH: f32 = 1280.;
@@ -34,13 +32,4 @@ impl Actionlike for Action {
             Action::Move | Action::Shoot => InputControlKind::Button,
         }
     }
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
-pub enum GameState {
-    #[default]
-    Loading,
-    Title,
-    Playing,
-    GameOver,
 }

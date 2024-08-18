@@ -4,9 +4,11 @@ use bevy::{
 };
 use sickle_ui::prelude::*;
 
-use crate::{stats::Score, GameState};
+use crate::stats::Score;
 
-pub fn plugin(app: &mut App) {
+use super::GameState;
+
+pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(GameState::GameOver), setup_game_over);
     app.add_systems(
         Update,

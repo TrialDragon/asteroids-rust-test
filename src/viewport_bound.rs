@@ -2,8 +2,7 @@ use avian2d::prelude::*;
 use bevy::prelude::*;
 
 use crate::{
-    destruction::Destroyed, GameState, BOTTOM_VIEWPORT_EDGE, LEFT_VIEWPORT_EDGE,
-    RIGHT_VIEWPORT_EDGE, TOP_VIEWPORT_EDGE, VIEWPORT_HEIGHT, VIEWPORT_WIDTH,
+    destruction::Destroyed, states::GameState, BOTTOM_VIEWPORT_EDGE, LEFT_VIEWPORT_EDGE, RIGHT_VIEWPORT_EDGE, TOP_VIEWPORT_EDGE, VIEWPORT_HEIGHT, VIEWPORT_WIDTH
 };
 
 pub fn plugin(app: &mut App) {

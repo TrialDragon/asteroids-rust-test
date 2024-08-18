@@ -4,10 +4,11 @@ use crate::{
     asteroid::{SetupAsteroidSpawners, SpawnAsteroids},
     player::SpawnPlayer,
     viewport_bound::SetupViewportCollider,
-    GameState,
 };
 
-pub fn plugin(app: &mut App) {
+use super::GameState;
+
+pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(GameState::Playing), setup_play_area);
 }
 

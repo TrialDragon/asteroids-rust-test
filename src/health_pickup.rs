@@ -2,7 +2,7 @@ use avian2d::prelude::*;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 
-use crate::{destruction::Destroyed, player::Player, stats::Health, GameState};
+use crate::{destruction::Destroyed, player::Player, states::GameState, stats::Health};
 
 pub fn plugin(app: &mut App) {
     app.configure_loading_state(

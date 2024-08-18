@@ -5,12 +5,7 @@ use bevy_transform_interpolation::*;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 use crate::{
-    destruction::Destroyed,
-    health_pickup::SpawnHealthPickup,
-    projectile::{Shootable, Shot},
-    stats::{AngularAcceleration, Health, LinearAcceleration, Points, Score},
-    viewport_bound::DestroyOutOfBounds,
-    GameState, BOTTOM_VIEWPORT_EDGE, LEFT_VIEWPORT_EDGE, RIGHT_VIEWPORT_EDGE, TOP_VIEWPORT_EDGE,
+    destruction::Destroyed, health_pickup::SpawnHealthPickup, projectile::{Shootable, Shot}, states::GameState, stats::{AngularAcceleration, Health, LinearAcceleration, Points, Score}, viewport_bound::DestroyOutOfBounds, BOTTOM_VIEWPORT_EDGE, LEFT_VIEWPORT_EDGE, RIGHT_VIEWPORT_EDGE, TOP_VIEWPORT_EDGE
 };
 
 pub fn plugin(app: &mut App) {

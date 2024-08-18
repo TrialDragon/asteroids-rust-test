@@ -5,12 +5,7 @@ use bevy_transform_interpolation::{RotationInterpolation, TranslationInterpolati
 use leafwing_input_manager::prelude::*;
 
 use crate::{
-    asteroid::Asteroid,
-    destruction::Destroyed,
-    projectile::SpawnProjectile,
-    stats::{AngularAcceleration, Health, LinearAcceleration},
-    viewport_bound::WrapMovement,
-    Action, GameState,
+    asteroid::Asteroid, destruction::Destroyed, projectile::SpawnProjectile, states::GameState, stats::{AngularAcceleration, Health, LinearAcceleration}, viewport_bound::WrapMovement, Action
 };
 
 pub fn plugin(app: &mut App) {

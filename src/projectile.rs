@@ -4,8 +4,7 @@ use bevy_asset_loader::prelude::*;
 use bevy_transform_interpolation::*;
 
 use crate::{
-    destruction::Destroyed, stats::LinearAcceleration, viewport_bound::DestroyOutOfBounds,
-    GameState,
+    destruction::Destroyed, states::GameState, stats::LinearAcceleration, viewport_bound::DestroyOutOfBounds
 };
 
 pub fn plugin(app: &mut App) {
