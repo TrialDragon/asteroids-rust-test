@@ -181,7 +181,7 @@ fn spawn_asteroid(
         Collider::circle(event.kind.get_collider_radius()),
         TranslationInterpolation,
         RotationInterpolation,
-        LinearAcceleration(50.),
+        LinearAcceleration(110.),
         AngularAcceleration(1.0),
     ));
 }
@@ -196,7 +196,7 @@ fn move_asteroids(
     )>,
     time: Res<Time<Fixed>>,
 ) {
-    const LINEAR_MAX_SPEED: f32 = 100.;
+    const LINEAR_MAX_SPEED: f32 = 200.;
     const ANGULAR_MAX_SPEED: f32 = PI;
 
     for (
