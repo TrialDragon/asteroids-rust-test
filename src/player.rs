@@ -17,7 +17,7 @@ pub fn plugin(app: &mut App) {
     app.configure_loading_state(
         LoadingStateConfig::new(GameState::Loading).load_collection::<PlayerAssets>(),
     );
-    app.add_systems(OnEnter(GameState::Playing), spawn_player);
+    app.observe(spawn_player);
     app.add_systems(FixedUpdate, move_player);
     app.add_systems(
         Update,
@@ -46,7 +46,10 @@ pub struct Player;
 #[reflect(Component)]
 struct EngineExhaust;
 
-fn spawn_player(mut commands: Commands, assets: Res<PlayerAssets>) {
+#[derive(Event, Debug)]
+pub struct SpawnPlayer;
+
+fn spawn_player(_: Trigger<SpawnPlayer>, mut commands: Commands, assets: Res<PlayerAssets>) {
     const ENGINE_EXHAUST_OFFSET: f32 = 48.;
 
     let input_map = InputMap::default()

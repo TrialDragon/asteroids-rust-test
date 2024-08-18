@@ -5,7 +5,7 @@ use bevy_transform_interpolation::*;
 use leafwing_input_manager::prelude::*;
 
 use game_library::{
-    asteroid, destruction, game_over, health_pickup, player, projectile, stats, title,
+    asteroid, destruction, game_over, health_pickup, player, playing, projectile, stats, title,
     viewport_bound, Action, GameState, VIEWPORT_HEIGHT, VIEWPORT_WIDTH,
 };
 use sickle_ui::SickleUiPlugin;
@@ -29,6 +29,7 @@ fn main() {
     app.add_plugins(game_over::plugin);
     app.add_plugins(health_pickup::plugin);
     app.add_plugins(player::plugin);
+    app.add_plugins(playing::plugin);
     app.add_plugins(projectile::plugin);
     app.add_plugins(stats::plugin);
     app.add_plugins(title::plugin);

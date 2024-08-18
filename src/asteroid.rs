@@ -23,10 +23,7 @@ pub fn plugin(app: &mut App) {
     app.register_type::<AsteroidID>();
     app.observe(spawn_asteroid);
     app.observe(spawn_asteroids);
-    app.add_systems(
-        OnEnter(GameState::Playing),
-        (setup_asteroid_spawners, initial_spawn_asteroids).chain(),
-    );
+    app.observe(setup_asteroid_spawners);
     app.add_systems(FixedUpdate, move_asteroids);
     app.add_systems(Update, (shot_asteroids, destroyed_asteroids).chain());
 }
@@ -272,7 +269,10 @@ impl AsteroidSpawnerBundle {
     }
 }
 
-fn setup_asteroid_spawners(mut commands: Commands) {
+#[derive(Event, Debug)]
+pub struct SetupAsteroidSpawners;
+
+fn setup_asteroid_spawners(_: Trigger<SetupAsteroidSpawners>, mut commands: Commands) {
     const OFFSET: f32 = 40.;
 
     const OFFSET_RIGHT_VIEWPORT_EDGE: f32 = RIGHT_VIEWPORT_EDGE + OFFSET;
@@ -372,10 +372,6 @@ fn spawn_asteroids(
 
         spawned_asteroids.push(transform.translation);
     }
-}
-
-fn initial_spawn_asteroids(mut commands: Commands) {
-    commands.trigger(SpawnAsteroids::new(5));
 }
 
 fn destroyed_asteroids(

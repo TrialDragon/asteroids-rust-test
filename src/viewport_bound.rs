@@ -11,7 +11,7 @@ pub fn plugin(app: &mut App) {
     // to use app sets to fix the amgbiguous
     // system running order, and the bugs
     // that may arise from that ambiguity.
-    app.add_systems(OnEnter(GameState::Playing), setup_viewport_collider);
+    app.observe(setup_viewport_collider);
     app.add_systems(Update, (movement_wrapping, out_of_bounds_destruction));
 }
 
@@ -27,7 +27,10 @@ pub struct WrapMovement;
 #[reflect(Component)]
 pub struct DestroyOutOfBounds;
 
-fn setup_viewport_collider(mut commands: Commands) {
+#[derive(Event, Debug)]
+pub struct SetupViewportCollider;
+
+fn setup_viewport_collider(_: Trigger<SetupViewportCollider>, mut commands: Commands) {
     commands.spawn((
         Name::new("ViewportCollider"),
         ViewportCollider,

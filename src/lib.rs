@@ -6,6 +6,7 @@ pub mod destruction;
 pub mod game_over;
 pub mod health_pickup;
 pub mod player;
+pub mod playing;
 pub mod projectile;
 pub mod stats;
 pub mod title;
