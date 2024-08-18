@@ -21,7 +21,7 @@ fn main() {
     app.enable_state_scoped_entities::<GameState>();
     app.add_loading_state(
         LoadingState::new(GameState::Loading)
-            .continue_to_state(GameState::Playing)
+            .continue_to_state(GameState::Title)
             .with_dynamic_assets_file::<StandardDynamicAssetCollection>("game.assets.ron"),
     );
     app.add_plugins(asteroid::plugin);
