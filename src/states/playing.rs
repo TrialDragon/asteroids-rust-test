@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 
 use crate::{
-    asteroid::{SetupAsteroidSpawners, SpawnAsteroids}, player::SpawnPlayer, stats::Score, viewport_bound::SetupViewportCollider
+    player::SpawnPlayer, stats::Score, viewport_bound::SetupViewportCollider
 };
+use crate::asteroid::asteroid_spawner::{SetupAsteroidSpawners, SpawnAsteroids};
 
 use super::GameState;
 
