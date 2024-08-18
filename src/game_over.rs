@@ -4,7 +4,7 @@ use bevy::{
 };
 use sickle_ui::prelude::*;
 
-use crate::GameState;
+use crate::{stats::Score, GameState};
 
 pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(GameState::GameOver), setup_game_over);
@@ -44,7 +44,7 @@ fn title_button(
     }
 }
 
-fn setup_game_over(mut commands: Commands) {
+fn setup_game_over(mut commands: Commands, score: Res<Score>) {
     // UI root.
     commands
         .ui_builder(UiRoot)
@@ -54,6 +54,13 @@ fn setup_game_over(mut commands: Commands) {
                 .spawn(TextBundle::from("Game Over"))
                 .style()
                 .margin(UiRect::top(Val::Vh(15.)));
+
+            // Score record.
+            column.row(|row| {
+                row.spawn(TextBundle::from("Asteroids Hit:"));
+
+                row.spawn(TextBundle::from(score.0.to_string()));
+            });
 
             // Button menu.
             column

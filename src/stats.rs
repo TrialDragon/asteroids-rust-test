@@ -7,6 +7,7 @@ pub fn plugin(app: &mut App) {
     app.register_type::<AngularAcceleration>();
     app.register_type::<Health>();
     app.register_type::<Points>();
+    app.insert_resource(Score(10));
 }
 
 #[derive(Component, Reflect)]
@@ -46,3 +47,7 @@ impl Health {
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct Points(pub u32);
+
+#[derive(Resource, Reflect)]
+#[reflect(Resource)]
+pub struct Score(pub u32);

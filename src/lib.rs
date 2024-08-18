@@ -7,7 +7,6 @@ pub mod game_over;
 pub mod health_pickup;
 pub mod player;
 pub mod projectile;
-pub mod score;
 pub mod stats;
 pub mod title;
 pub mod viewport_bound;

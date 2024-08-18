@@ -8,8 +8,7 @@ use crate::{
     destruction::Destroyed,
     health_pickup::SpawnHealthPickup,
     projectile::{Shootable, Shot},
-    score::Score,
-    stats::{AngularAcceleration, Health, LinearAcceleration, Points},
+    stats::{AngularAcceleration, Health, LinearAcceleration, Points, Score},
     viewport_bound::DestroyOutOfBounds,
     GameState, BOTTOM_VIEWPORT_EDGE, LEFT_VIEWPORT_EDGE, RIGHT_VIEWPORT_EDGE, TOP_VIEWPORT_EDGE,
 };
@@ -398,7 +397,7 @@ fn destroyed_asteroids(
         if asteroid_query.contains(*entity) {
             let (health, points, kind, transform, asteroid) = asteroid_query.get(*entity).unwrap();
             if health.current() == 0 {
-                score.current += points.0;
+                score.0 += points.0;
                 let spawn_health: bool = rng.gen();
 
                 if kind.is_smaller() && spawn_health {
