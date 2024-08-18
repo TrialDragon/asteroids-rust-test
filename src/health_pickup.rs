@@ -51,6 +51,7 @@ fn spawn_health_pickup(
     commands.spawn((
         Name::new("HealthPickup"),
         HealthPickup,
+        StateScoped(GameState::Playing),
         Collider::circle(20.),
         SpriteBundle {
             transform: Transform {
